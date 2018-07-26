@@ -9,6 +9,8 @@ namespace ElaborazionePdf.UnitTests
 	{
 		private const string FILE_WITH_CHECKBOX = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf";
 		private const string FILE_WITH_SIGNATUREFIELD = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf";
+		private const string FILE_WITH_RADIOBUTTON = @"TestFiles\test_radiobutton.pdf";
+		
 		/*!
 		 Constructor tests
 		 */
@@ -195,5 +197,145 @@ namespace ElaborazionePdf.UnitTests
 			Assert.IsFalse(result);
 		}
 
+		/*!
+		 Method 4 tests
+		 */
+
+		[TestMethod]
+		public void SelectRadiobutton_RadiobuttonExists_ReturnsTrue()
+		{
+			//Arrange
+			var doc = new PdfDocument(FILE_WITH_RADIOBUTTON);
+
+			//Act
+			var result = doc.SelectRadiobutton();
+
+			//Assert
+			Assert.IsTrue(result);
+		}
+
+		[TestMethod]
+		public void SelectRadiobutton_RadiobuttonDoesntExist_ReturnsTrue()
+		{
+			//Arrange
+			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+
+			//Act
+			var result = doc.SelectRadiobutton();
+
+			//Assert
+			Assert.IsFalse(result);
+		}
+
+		[TestMethod]
+		public void SelectRadiobutton_SelectingTwiceRadiobutton_ReturnsTrue()
+		{
+			//Arrange
+			var doc = new PdfDocument(FILE_WITH_RADIOBUTTON);
+
+			//Act
+			var result = doc.SelectRadiobutton();
+			var result2 = doc.SelectRadiobutton();
+
+			//Assert
+			Assert.IsTrue(result && result2);
+		}
+
+		/*!
+		 Method 5 tests
+		 */
+
+		[TestMethod]
+		public void InsertTextInField_FieldExists_ReturnsTrue()
+		{
+			//Arrange
+			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+
+			//Act
+			var result = doc.InsertTextInField("Nome", "Pippo");
+
+			//Assert
+			Assert.IsTrue(result);
+		}
+
+		[TestMethod]
+		public void InsertTextInField_FieldDoesntExist_ReturnsFalse()
+		{
+			//Arrange
+			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+
+			//Act
+			var result = doc.InsertTextInField("Nomi", "Pippo");
+
+			//Assert
+			Assert.IsFalse(result);
+		}
+
+		[TestMethod]
+		public void InsertTextInField_InsertingTextTwice_ReturnsTrue()
+		{
+			//Arrange
+			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+
+			//Act
+
+			//Inserting first time
+			var result = doc.InsertTextInField("Nome", "Pippo");
+			//Inserting second time
+			result = doc.InsertTextInField("Nome", "Pippo2");
+
+			//Assert
+			Assert.IsTrue(result);
+		}
+
+		/*!
+		 Method 6 tests
+		 */
+
+		[TestMethod]
+		public void Save_DocumentUntouched_ReturnsTrue()
+		{
+			//Arrange
+
+			//Generating output file name (filename + _modified.pdf)
+			var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
+			//Checking if output file exists, in case we delete it
+			if (File.Exists(filename_out))
+			{
+				File.Delete(filename_out);
+			}
+
+			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+
+			//Act
+			doc.Save();
+
+			Assert.IsTrue(File.Exists(filename_out));
+		}
+
+		[TestMethod]
+		public void Save_DocumentTouched_ReturnsTrue()
+		{
+			//Arrange
+
+			//Generating output file name (filename + _modified.pdf)
+			var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
+			//Checking if output file exists, in case we delete it
+			if (File.Exists(filename_out))
+			{
+				File.Delete(filename_out);
+			}
+
+			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+
+			//Modifying file
+			doc.FlagCheckbox();
+			doc.InsertTextInField("Nome", "Pippo");
+
+			//Act
+			doc.Save();
+
+			Assert.IsTrue(File.Exists(filename_out));
+		}
 	}
 }
