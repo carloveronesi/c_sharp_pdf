@@ -25,6 +25,7 @@ namespace ElaborazionePdf
 			LoadFile();
 		}
 
+
 		/*!
 		 Loading the input file into memory
 		 */
@@ -313,7 +314,7 @@ namespace ElaborazionePdf
 							string[] values = form.GetAppearanceStates(kvp.Key);
 
 							//Setting the first value
-							form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
+							found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
 						}
 					}
 					//Disabling flattening because the file could be modified untill the call of save()
@@ -465,7 +466,7 @@ namespace ElaborazionePdf
 			{
 				Console.WriteLine("Errore apertura file:\n" + e);
 			}
-			
+
 /*
 			//Calling method 1
 			int fieldType = p.GetAcrofieldType("Nome");
