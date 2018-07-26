@@ -7,9 +7,9 @@ using System.Collections;
 using static iTextSharp.text.pdf.AcroFields;
 using iTextSharp.text;
 
-namespace ElaborazionePdf
+namespace ElaborazionePdf 
 {
-	public class PdfDocument
+	public class PdfDocument : IDisposable
 	{
 		private string filename;                    //Filename
 		private string filename_out;                //Filename for the modified file
@@ -27,6 +27,18 @@ namespace ElaborazionePdf
 			//Loading file
 			LoadFile();
 		}
+
+		#region IDisposable Members
+		/*!
+		 Implementing Dispose()
+		 */
+		public void Dispose()
+		{
+			stamper.Dispose();
+			reader.Dispose();
+			memoryStream.Dispose();
+		}
+		#endregion
 
 		/*!
 		 Loading the input file into memory
@@ -366,50 +378,51 @@ namespace ElaborazionePdf
 		static void Main(string[] args)
 		{
 			int option = 0;
-			PdfDocument p;
 			try
 			{
-				p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf");
-				Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
-
-				do
+				using (PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf"))
 				{
-					Console.WriteLine("\nMENU\n\n1. Metodo: ricerca di un acrofield generico per name, l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton)\n2. Metodo: per flaggare un acrofield di tipo checkbox\n3. Metodo: per sostituire un acrofield di tipo signature con un acrofield di tipo checkbox\n4. Metodo: per selezionare un acrofield di tipo radiobutton\n5. Metodo: per inserire un testo in un acrofield di tipo testo\n6. Metodo: per ottenere il pdf elaborato\n7. Esci\n\nInserisci la tua scelta:");
-					option = Int32.Parse(Console.ReadLine());
-					switch (option)
+					Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
+
+					do
 					{
-						case 1:
-							int fieldType = p.GetAcrofieldType("Nome");
-							Console.WriteLine("Looking for field named \"Nome\"...");
-							if (fieldType != -1)
-								Console.WriteLine("Found type: " + fieldType + " (" + GetFormType(fieldType) + ")");
-							else
-								Console.WriteLine("Field not found or illegal field type");
-							break;
-						case 2:
-							Console.WriteLine("\nLooking for a checkable Checkbox..." + p.FlagCheckbox());
-							break;
-						case 3:
-							Console.WriteLine("\nLooking for a signature to substitute with a checkbox..." + p.SubstituteSignature());
-							break;
-						case 4:
-							Console.WriteLine("\nLooking for radiobutton to select..." + p.SelectRadiobutton());
-							break;
-						case 5:
-							Console.WriteLine("\nInserting text in field named \"Nome\"..." + p.InsertTextInField("Nome", "Carlo") + "\n\n");
-							break;
-						case 6:
-							p.Save();
-							Console.WriteLine("File \"" + p.filename_out + "\" saved.");
-							break;
-						case 7:
-							break;
-						default:
-							Console.WriteLine("Wrong command");
-							break;
+						Console.WriteLine("\nMENU\n\n1. Metodo: ricerca di un acrofield generico per name, l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton)\n2. Metodo: per flaggare un acrofield di tipo checkbox\n3. Metodo: per sostituire un acrofield di tipo signature con un acrofield di tipo checkbox\n4. Metodo: per selezionare un acrofield di tipo radiobutton\n5. Metodo: per inserire un testo in un acrofield di tipo testo\n6. Metodo: per ottenere il pdf elaborato\n7. Esci\n\nInserisci la tua scelta:");
+						option = Int32.Parse(Console.ReadLine());
+						switch (option)
+						{
+							case 1:
+								int fieldType = p.GetAcrofieldType("Nome");
+								Console.WriteLine("Looking for field named \"Nome\"...");
+								if (fieldType != -1)
+									Console.WriteLine("Found type: " + fieldType + " (" + GetFormType(fieldType) + ")");
+								else
+									Console.WriteLine("Field not found or illegal field type");
+								break;
+							case 2:
+								Console.WriteLine("\nLooking for a checkable Checkbox..." + p.FlagCheckbox());
+								break;
+							case 3:
+								Console.WriteLine("\nLooking for a signature to substitute with a checkbox..." + p.SubstituteSignature());
+								break;
+							case 4:
+								Console.WriteLine("\nLooking for radiobutton to select..." + p.SelectRadiobutton());
+								break;
+							case 5:
+								Console.WriteLine("\nInserting text in field named \"Nome\"..." + p.InsertTextInField("Nome", "Carlo") + "\n\n");
+								break;
+							case 6:
+								p.Save();
+								Console.WriteLine("File \"" + p.filename_out + "\" saved.");
+								break;
+							case 7:
+								break;
+							default:
+								Console.WriteLine("Wrong command");
+								break;
+						}
 					}
+					while (option >= 7 && option != 6);
 				}
-				while (option >= 7 && option !=6);
 			}
 			catch (IOException e)
 			{
