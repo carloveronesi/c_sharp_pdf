@@ -19,7 +19,7 @@ namespace ElaborazionePdf.UnitTests
 		public void Constructor_FileExists_NoExceptions()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX)) { }
 		}
 
 		[TestMethod]
@@ -27,7 +27,7 @@ namespace ElaborazionePdf.UnitTests
 		public void Constructor_FileDoesntExist_ThrowsException()
 		{
 			//Arrange / Act
-			var doc = new PdfDocument(@"TestFiles\filenonesistente.pdf");
+			using (PdfDocument doc = new PdfDocument(@"TestFiles\filenonesistente.pdf")){ }
 		}
 
 		/*!
@@ -38,27 +38,29 @@ namespace ElaborazionePdf.UnitTests
 		public void GetAcrofieldType_FieldExists_ReturnsFieldType()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
-			
-			//Act
-			var type = doc.GetAcrofieldType("Nome");
-			System.Diagnostics.Debug.WriteLine("Looking for acrofield named \"Nome\", type: " + type + " (" + PdfDocument.GetFormType(type) + ")");
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				var type = doc.GetAcrofieldType("Nome");
+				System.Diagnostics.Debug.WriteLine("Looking for acrofield named \"Nome\", type: " + type + " (" + PdfDocument.GetFormType(type) + ")");
 
-			//Assert
-			Assert.IsTrue(type > -1);
+				//Assert
+				Assert.IsTrue(type > -1);
+			}
 		}
 
 		[TestMethod]
 		public void GetAcrofieldType_FieldDoesntExist_ReturnsMinusOne()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				var type = doc.GetAcrofieldType("Nomi");
 
-			//Act
-			var type = doc.GetAcrofieldType("Nomi");
-
-			//Assert
-			Assert.AreEqual(-1, type);
+				//Assert
+				Assert.AreEqual(-1, type);
+			}
 		}
 
 		/*!
@@ -69,60 +71,64 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_CheckboxExists_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				var result = doc.FlagCheckbox();
 
-			//Act
-			var result = doc.FlagCheckbox();
-
-			//Assert
-			Assert.IsTrue(result);
+				//Assert
+				Assert.IsTrue(result);
+			}
 		}
 
 		[TestMethod]
 		public void FlagCheckbox_TwoCheckableCheckboxes_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				//Flagging first checkbox
+				var result1 = doc.FlagCheckbox();
+				//Flagging second
+				var result2 = doc.FlagCheckbox();
 
-			//Act
-			//Flagging first checkbox
-			var result1 = doc.FlagCheckbox();
-			//Flagging second
-			var result2 = doc.FlagCheckbox();
-
-			//Assert
-			Assert.IsTrue(result1 && result2);
+				//Assert
+				Assert.IsTrue(result1 && result2);
+			}
 		}
 
 		[TestMethod]
 		public void FlagCheckbox_TwoCheckableCheckboxesButTryingToCheckThree_ReturnsFalse()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				//Flagging first checkbox
+				var result1 = doc.FlagCheckbox();
+				//Flagging second
+				var result2 = doc.FlagCheckbox();
+				//Flagging third
+				var result3 = doc.FlagCheckbox();
 
-			//Act
-			//Flagging first checkbox
-			var result1 = doc.FlagCheckbox();
-			//Flagging second
-			var result2 = doc.FlagCheckbox();
-			//Flagging third
-			var result3 = doc.FlagCheckbox();
-
-			//Assert
-			Assert.IsFalse(result1 && result2 && result3);
+				//Assert
+				Assert.IsFalse(result1 && result2 && result3);
+			}
 		}
 
 		[TestMethod]
 		public void FlagCheckbox_CheckboxDoesntExist_ReturnsFalse()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD))
+			{
+				//Act
+				var result = doc.FlagCheckbox();
 
-			//Act
-			var result = doc.FlagCheckbox();
-
-			//Assert
-			Assert.IsFalse(result);
+				//Assert
+				Assert.IsFalse(result);
+			}
 		}
 
 		/*!
@@ -133,60 +139,64 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_SignatureExists_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD))
+			{
+				//Act
+				var result = doc.SubstituteSignature();
 
-			//Act
-			var result = doc.SubstituteSignature();
-
-			//Assert
-			Assert.IsTrue(result);
+				//Assert
+				Assert.IsTrue(result);
+			}
 		}
 
 		[TestMethod]
 		public void SubstituteSignature_TwoSignatureFields_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD))
+			{
+				//Act
+				//Flagging first checkbox
+				var result1 = doc.SubstituteSignature();
+				//Flagging second
+				var result2 = doc.SubstituteSignature();
 
-			//Act
-			//Flagging first checkbox
-			var result1 = doc.SubstituteSignature();
-			//Flagging second
-			var result2 = doc.SubstituteSignature();
-
-			//Assert
-			Assert.IsTrue(result1 && result2);
+				//Assert
+				Assert.IsTrue(result1 && result2);
+			}
 		}
 
 		[TestMethod]
 		public void SubstituteSignature_TwoSignatureFieldsButTryingToSubstituteThree_ReturnsFalse()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD))
+			{
+				//Act
+				//Flagging first checkbox
+				var result1 = doc.SubstituteSignature();
+				//Flagging second
+				var result2 = doc.SubstituteSignature();
+				//Flagging third
+				var result3 = doc.SubstituteSignature();
 
-			//Act
-			//Flagging first checkbox
-			var result1 = doc.SubstituteSignature();
-			//Flagging second
-			var result2 = doc.SubstituteSignature();
-			//Flagging third
-			var result3 = doc.SubstituteSignature();
-
-			//Assert
-			Assert.IsFalse(result1 && result2 && result3);
+				//Assert
+				Assert.IsFalse(result1 && result2 && result3);
+			}
 		}
 
 		[TestMethod]
 		public void SubstituteSignature_SignatureDoesntExist_ReturnsFalse()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				var result = doc.SubstituteSignature();
 
-			//Act
-			var result = doc.SubstituteSignature();
-
-			//Assert
-			Assert.IsFalse(result);
+				//Assert
+				Assert.IsFalse(result);
+			}
 		}
 
 		/*!
@@ -197,40 +207,43 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_RadiobuttonExists_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_RADIOBUTTON);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_RADIOBUTTON))
+			{
+				//Act
+				var result = doc.SelectRadiobutton();
 
-			//Act
-			var result = doc.SelectRadiobutton();
-
-			//Assert
-			Assert.IsTrue(result);
+				//Assert
+				Assert.IsTrue(result);
+			}
 		}
 
 		[TestMethod]
 		public void SelectRadiobutton_RadiobuttonDoesntExist_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				var result = doc.SelectRadiobutton();
 
-			//Act
-			var result = doc.SelectRadiobutton();
-
-			//Assert
-			Assert.IsFalse(result);
+				//Assert
+				Assert.IsFalse(result);
+			}
 		}
 
 		[TestMethod]
 		public void SelectRadiobutton_SelectingTwiceRadiobutton_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_RADIOBUTTON);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_RADIOBUTTON))
+			{
+				//Act
+				var result = doc.SelectRadiobutton();
+				var result2 = doc.SelectRadiobutton();
 
-			//Act
-			var result = doc.SelectRadiobutton();
-			var result2 = doc.SelectRadiobutton();
-
-			//Assert
-			Assert.IsTrue(result && result2);
+				//Assert
+				Assert.IsTrue(result && result2);
+			}
 		}
 
 		/*!
@@ -241,43 +254,46 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_FieldExists_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				var result = doc.InsertTextInField("Nome", "Pippo");
 
-			//Act
-			var result = doc.InsertTextInField("Nome", "Pippo");
-
-			//Assert
-			Assert.IsTrue(result);
+				//Assert
+				Assert.IsTrue(result);
+			}
 		}
 
 		[TestMethod]
 		public void InsertTextInField_FieldDoesntExist_ReturnsFalse()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				var result = doc.InsertTextInField("Nomi", "Pippo");
 
-			//Act
-			var result = doc.InsertTextInField("Nomi", "Pippo");
-
-			//Assert
-			Assert.IsFalse(result);
+				//Assert
+				Assert.IsFalse(result);
+			}
 		}
 
 		[TestMethod]
 		public void InsertTextInField_InsertingTextTwice_ReturnsTrue()
 		{
 			//Arrange
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
 
-			//Act
+				//Inserting first time
+				var result = doc.InsertTextInField("Nome", "Pippo");
+				//Inserting second time
+				result = doc.InsertTextInField("Nome", "Pippo2");
 
-			//Inserting first time
-			var result = doc.InsertTextInField("Nome", "Pippo");
-			//Inserting second time
-			result = doc.InsertTextInField("Nome", "Pippo2");
-
-			//Assert
-			Assert.IsTrue(result);
+				//Assert
+				Assert.IsTrue(result);
+			}
 		}
 
 		/*!
@@ -297,12 +313,13 @@ namespace ElaborazionePdf.UnitTests
 				File.Delete(filename_out);
 			}
 
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Act
+				doc.Save();
 
-			//Act
-			doc.Save();
-
-			Assert.IsTrue(File.Exists(filename_out));
+				Assert.IsTrue(File.Exists(filename_out));
+			}
 		}
 
 		[TestMethod]
@@ -318,16 +335,17 @@ namespace ElaborazionePdf.UnitTests
 				File.Delete(filename_out);
 			}
 
-			var doc = new PdfDocument(FILE_WITH_CHECKBOX);
+			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX))
+			{
+				//Modifying file
+				doc.FlagCheckbox();
+				doc.InsertTextInField("Nome", "Pippo");
 
-			//Modifying file
-			doc.FlagCheckbox();
-			doc.InsertTextInField("Nome", "Pippo");
+				//Act
+				doc.Save();
 
-			//Act
-			doc.Save();
-
-			Assert.IsTrue(File.Exists(filename_out));
+				Assert.IsTrue(File.Exists(filename_out));
+			}
 		}
 	}
 }
