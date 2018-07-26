@@ -33,7 +33,7 @@ namespace ElaborazionePdf.UnitTests
 			
 			//Act
 			var type = doc.GetAcrofieldType("Nome");
-			System.Diagnostics.Debug.WriteLine("Looking for acrofield named \"Nome\", type: " + type + " (" + doc.GetFormType(type) + ")");
+			System.Diagnostics.Debug.WriteLine("Looking for acrofield named \"Nome\", type: " + type + " (" + PdfDocument.GetFormType(type) + ")");
 
 			//Assert
 			Assert.IsTrue(type > -1);

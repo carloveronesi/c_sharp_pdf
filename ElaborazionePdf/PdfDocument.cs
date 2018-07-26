@@ -33,8 +33,9 @@ namespace ElaborazionePdf
 			MemoryStream memoryStream = null;
 
 			try
-			{
-				memoryStream = new MemoryStream();                                      //Creating a new MemoryStream
+			{	
+				//Creating a new MemoryStream
+				memoryStream = new MemoryStream();                                      
 
 				//Copying file in memory
 				using (FileStream fs = File.OpenRead(filename))
@@ -66,13 +67,12 @@ namespace ElaborazionePdf
 		 */
 		public int GetAcrofieldType(string fieldName)
 		{
-			PdfReader reader = null;                                //Creating a PdfReader
 			int type;                                               //Type of field
-			Console.WriteLine(workingCopy.Length);
+
 			try
 			{
 				//Reading pdf from the memory copy
-				using (reader = new PdfReader(new MemoryStream(workingCopy)))
+				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))
 				{
 					//Getting fields
 					AcroFields form = reader.AcroFields;
@@ -100,14 +100,9 @@ namespace ElaborazionePdf
 			}
 			catch (IOException e)
 			{
-				//Closing stream
-				reader.Dispose();
-				//Showing error
-				Console.WriteLine("ERROR: " + e);
+				//Throwing exception to the caller
+				throw e;
 			}
-
-			//Closing stream
-			reader.Dispose();
 
 			//Returning -1 in case of error or different field type
 			return -1;
@@ -119,7 +114,7 @@ namespace ElaborazionePdf
 		 @param[out] string	Field type (human readable)
 		 @param[in]  int	Field type
 		 */
-		public string GetFormType(int num)
+		public static string GetFormType(int num)
 		{
 			switch (num)
 			{
@@ -154,10 +149,10 @@ namespace ElaborazionePdf
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
 			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
-			PdfReader reader = new PdfReader(new MemoryStream(workingCopy));    //Reading the working copy
 
 			try
 			{
+				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
 				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
 				{
 					//Getting forms
@@ -192,14 +187,10 @@ namespace ElaborazionePdf
 			catch (IOException e)
 			{
 				//Closing stream
-				reader.Dispose();
 				memoryStream.Dispose();
-				//Showing error
-				Console.WriteLine("ERROR: " + e);
+				//Throwing exception to the caller
+				throw e;
 			}
-
-			//Disposing reader
-			reader.Dispose();
 
 			//Saving the working copy
 			workingCopy = memoryStream.ToArray();
@@ -220,13 +211,13 @@ namespace ElaborazionePdf
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
 			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
-			PdfReader reader = new PdfReader(new MemoryStream(workingCopy));    //Reading the working copy
 
 			string key = null;
 			IList<FieldPosition> positions = null;
 
 			try
 			{
+				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
 				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
 				{
 
@@ -277,14 +268,10 @@ namespace ElaborazionePdf
 			catch (IOException e)
 			{
 				//Closing stream
-				reader.Dispose();
 				memoryStream.Dispose();
-				//Showing error
-				Console.WriteLine("ERROR: " + e);
+				//Throwing exception to the caller
+				throw e;
 			}
-
-			//Disposing reader
-			reader.Dispose();
 
 			//Saving the working copy
 			workingCopy = memoryStream.ToArray();
@@ -304,10 +291,10 @@ namespace ElaborazionePdf
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
 			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
-			PdfReader reader = new PdfReader(new MemoryStream(workingCopy));    //Reading the working copy
 
 			try
 			{
+				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
 				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
 				{
 					//Getting forms
@@ -335,14 +322,10 @@ namespace ElaborazionePdf
 			catch (IOException e)
 			{
 				//Closing stream
-				reader.Dispose();
 				memoryStream.Dispose();
-				//Showing error
-				Console.WriteLine("ERROR: " + e);
+				//Throwing exception to the caller
+				throw e;
 			}
-
-			//Disposing reader
-			reader.Dispose();
 
 			//Saving the working copy
 			workingCopy = memoryStream.ToArray();
@@ -363,10 +346,10 @@ namespace ElaborazionePdf
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
 			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
-			PdfReader reader = new PdfReader(new MemoryStream(workingCopy));    //Reading the working copy
 
 			try
 			{
+				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
 				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
 				{
 					//Getting forms
@@ -395,14 +378,10 @@ namespace ElaborazionePdf
 			catch (IOException e)
 			{
 				//Closing stream
-				reader.Dispose();
 				memoryStream.Dispose();
-				//Showing error
-				Console.WriteLine("ERROR: " + e);
+				//Throwing exception to the caller
+				throw e;
 			}
-
-			//Disposing reader
-			reader.Dispose();
 
 			//Saving the working copy
 			workingCopy = memoryStream.ToArray();
@@ -482,7 +461,7 @@ namespace ElaborazionePdf
 				int fieldType = p.GetAcrofieldType("Nome");
 				Console.WriteLine("Looking for field named \"Nome\"...");
 				if (fieldType != -1)
-					Console.WriteLine("Found type: " + fieldType + " (" + p.GetFormType(fieldType) + ")");
+					Console.WriteLine("Found type: " + fieldType + " (" + GetFormType(fieldType) + ")");
 				else
 					Console.WriteLine("Field not found or illegal field type");
 			}
