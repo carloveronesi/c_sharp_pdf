@@ -42,9 +42,10 @@ namespace ElaborazionePdf
 		{
 			memoryStream = new MemoryStream();
 			reader = new PdfReader(filename);
-			stamper = new PdfStamper(reader, memoryStream);
-
-			stamper.FormFlattening = true;
+			stamper = new PdfStamper(reader, memoryStream)
+			{
+				FormFlattening = true
+			};
 		}
 
 		/*!
@@ -334,17 +335,19 @@ namespace ElaborazionePdf
 		 */
 		public void Save()
 		{
-			
 
+//Closing stamper
+			stamper.Dispose();
 			var contenuto = memoryStream.ToArray();
 			//Console.WriteLine("> " + Encoding.Default.GetString(contenuto));
-
-			using(PdfStamper filestamper = new PdfStamper(new PdfReader(memoryStream), new FileStream(filename_out, FileMode.Create)))
+			using (PdfReader reader2 = new PdfReader(contenuto))
+			using (PdfStamper filestamper = new PdfStamper(reader2, new FileStream(filename_out, FileMode.Create)))
 			{
-				stamper.FormFlattening = true;
+				var aa = reader2.ToString();
+				Console.WriteLine("> " + aa);
+				filestamper.FormFlattening = true;
 			}
-			//Closing stamper
-			stamper.Dispose();
+			
 			//Closing memorystream
 			memoryStream.Dispose();
 		}
@@ -413,7 +416,6 @@ namespace ElaborazionePdf
 				Console.WriteLine(e);
 				CloseProgram();
 			}
-			Console.ReadLine();
 		}
 
 	}
