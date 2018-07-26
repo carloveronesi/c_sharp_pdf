@@ -40,24 +40,20 @@ namespace ElaborazionePdf
 		 */
 		private void LoadFile()
 		{
-			MemoryStream memoryStream = null;
 			try
 			{
-				memoryStream = new MemoryStream();                          //Creating a new MemoryStream
+				using (MemoryStream memoryStream = new MemoryStream())                          //Creating a new MemoryStream
 				using (PdfReader reader = new PdfReader(filename))                      //Creating a PdfReader
-				using (PdfStamper stamper = new PdfStamper(reader, memoryStream)) { }   //Reading the file and saving it to memoryStream
+				using (PdfStamper stamper = new PdfStamper(reader, memoryStream)) {    //Reading the file and saving it to memoryStream
 
 				//Saving memoryStream as array of bytes in workingCopy
 				workingCopy = memoryStream.ToArray();
-				//Disposing memoryStream stream
-				memoryStream.Dispose();
+				}
 			}
 			catch (IOException e)
 			{
-				//Disposing memoryStream
-				memoryStream.Dispose();
-				//Showing error
-				Console.WriteLine("ERROR: " + e);
+				//Throwing exception to the caller
+				throw e;
 			}
 		}
 
@@ -478,9 +474,16 @@ namespace ElaborazionePdf
 
 		static void Main(string[] args)
 		{
+			try
+			{
+				PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf");
+				Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
+			}
+			catch(IOException e)
+			{
+				Console.WriteLine("Errore apertura file:\n" + e);
+			}
 			
-			PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf");
-			Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
 /*
 			//Calling method 1
 			int fieldType = p.GetAcrofieldType("Nome");
