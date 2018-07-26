@@ -286,6 +286,7 @@ namespace ElaborazionePdf
 		 METODO 4: Selezionare un acrofield di tipo radiobutton
 
 		 Selecting a radiobutton acrofield
+		 @param[out] bool	Operation result
 		 */
 		public bool SelectRadiobutton()
 		{
@@ -341,6 +342,7 @@ namespace ElaborazionePdf
 		 METODO 5: Inserire un testo in un acrofield ti tipo testo
 
 		 Inserting the given text into a textfield
+		 @param[out] bool	Operation result
 		 */
 		public bool InsertTextInField(string fieldName, string text)
 		{
@@ -415,12 +417,11 @@ namespace ElaborazionePdf
 		 */
 		private void FlatteningPdf()
 		{
-			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
-			PdfReader reader = new PdfReader(new MemoryStream(workingCopy));    //Reading the working copy
+			MemoryStream memoryStream = new MemoryStream();									//Creating memorystream where to save data
 
 			try
 			{
-				//Stamper start
+				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
 				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
 				{
 					//Disabling flattening because the file could be modified untill the call of save()
@@ -430,14 +431,10 @@ namespace ElaborazionePdf
 			catch (IOException e)
 			{
 				//Closing stream
-				reader.Dispose();
 				memoryStream.Dispose();
-				//Showing error
-				Console.WriteLine("ERROR: " + e);
+				//Throwing exception to the caller
+				throw e;
 			}
-
-			//Disposing reader
-			reader.Dispose();
 
 			//Saving the working copy
 			workingCopy = memoryStream.ToArray();
