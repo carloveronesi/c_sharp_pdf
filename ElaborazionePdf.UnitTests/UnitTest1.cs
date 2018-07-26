@@ -7,7 +7,10 @@ namespace ElaborazionePdf.UnitTests
 	[TestClass]
 	public class PdfDocumentTests
 	{
-		
+		/*!
+		 Constructor tests
+		 */
+
 		[TestMethod]
 		public void Constructor_FileExists_NoExceptions()
 		{
@@ -30,6 +33,10 @@ namespace ElaborazionePdf.UnitTests
 			//Arrange / Act
 			var doc = new PdfDocument(@"DirectoryNonEsistente\filenonesistente.pdf");
 		}
+
+		/*!
+		 Method 1 tests
+		 */
 
 		[TestMethod]
 		public void GetAcrofieldType_FieldExists_ReturnsFieldType()
