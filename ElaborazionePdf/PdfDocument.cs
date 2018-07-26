@@ -454,7 +454,7 @@ namespace ElaborazionePdf
 		{
 			try
 			{
-				PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf");
+				PdfDocument p = new PdfDocument(@"C:\Usersi\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf");
 				Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
 
 				//Calling method 1

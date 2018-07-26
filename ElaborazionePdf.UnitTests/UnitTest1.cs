@@ -7,22 +7,28 @@ namespace ElaborazionePdf.UnitTests
 	[TestClass]
 	public class PdfDocumentTests
 	{
-		/*
+		
 		[TestMethod]
 		public void Constructor_FileExists_NoExceptions()
 		{
 			//Arrange
 			var doc = new PdfDocument(@"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf");
 		}
-		*/
+
 		[TestMethod]
-		[ExpectedException(typeof(IOException),
-		 "File not found")]
-		public void Constructor_FileDoesntExist_Exception()
+		[ExpectedException(typeof(FileNotFoundException),"No Exception found: file exists (but should not)")]
+		public void Constructor_FileDoesntExist_ThrowsException()
 		{
-			//Arrange
+			//Arrange / Act
 			var doc = new PdfDocument(@"TestFiles\filenonesistente.pdf");
-			Assert.Fail();
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(DirectoryNotFoundException), "No Exception found: directory exists (but should not)")]
+		public void Constructor_DirectoryDoesntExist_ThrowsException()
+		{
+			//Arrange / Act
+			var doc = new PdfDocument(@"DirectoryNonEsistente\filenonesistente.pdf");
 		}
 
 		[TestMethod]
