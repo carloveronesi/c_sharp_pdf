@@ -11,9 +11,9 @@ namespace ElaborazionePdf
 {
 	public class PdfDocument
 	{
-		private string filename;
-		private Byte[] workingCopy;
-		private string filename_out;
+		private string filename;					//Filename
+		private Byte[] workingCopy;					//File's working copy
+		private string filename_out;				//Filename for the modified file
 
 		public PdfDocument(string filename)
 		{
@@ -24,7 +24,6 @@ namespace ElaborazionePdf
 			//Loading file
 			LoadFile();
 		}
-
 
 		/*!
 		 Loading the input file into memory
@@ -458,7 +457,7 @@ namespace ElaborazionePdf
 
 				do
 				{
-					Console.WriteLine("\nMENU\n\n1. Metodo: ricerca di un acrofield generico per name, l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton)\n2.Metodo: per flaggare un acrofield di tipo checkbox\n3. Metodo: per sostituire un acrofield di tipo signature con un acrofield di tipo checkbox\n4. Metodo: per selezionare un acrofield di tipo radiobutton\n5. Metodo: per inserire un testo in un acrofield di tipo testo\n6. Metodo: per ottenere il pdf elaborato\n7. Esci\n\nInserisci la tua scelta:");
+					Console.WriteLine("\nMENU\n\n1. Metodo: ricerca di un acrofield generico per name, l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton)\n2. Metodo: per flaggare un acrofield di tipo checkbox\n3. Metodo: per sostituire un acrofield di tipo signature con un acrofield di tipo checkbox\n4. Metodo: per selezionare un acrofield di tipo radiobutton\n5. Metodo: per inserire un testo in un acrofield di tipo testo\n6. Metodo: per ottenere il pdf elaborato\n7. Esci\n\nInserisci la tua scelta:");
 					option = Int32.Parse(Console.ReadLine());
 					switch (option)
 					{
