@@ -463,7 +463,7 @@ namespace ElaborazionePdf
 								break;
 						}
 					}
-					while (option <= 7 && option != 6);
+					while (option != 6);
 				}
 			}
 			catch (IOException e)
