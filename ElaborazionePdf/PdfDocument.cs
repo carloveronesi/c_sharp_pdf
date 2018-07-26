@@ -11,12 +11,12 @@ namespace ElaborazionePdf
 {
 	public class PdfDocument
 	{
-		private string filename;					//Filename
-		private Byte[] workingCopy;					//File's working copy
+		private string filename;                    //Filename
 		private string filename_out;                //Filename for the modified file
 
 		private PdfStamper stamper;
 		private PdfReader reader;
+		private MemoryStream memoryStream;
 
 		public PdfDocument(string filename)
 		{
@@ -28,41 +28,23 @@ namespace ElaborazionePdf
 			LoadFile();
 		}
 
+		public void DisposeAll()
+		{
+			reader.Dispose();
+			stamper.Dispose();
+			memoryStream.Dispose();
+		}
+
 		/*!
 		 Loading the input file into memory
 		 */
 		private void LoadFile()
 		{
-			MemoryStream memoryStream = new MemoryStream();
+			memoryStream = new MemoryStream();
 			reader = new PdfReader(filename);
 			stamper = new PdfStamper(reader, memoryStream);
-			/*
-			MemoryStream memoryStream = null;
 
-			try
-			{	
-				//Creating a new MemoryStream
-				memoryStream = new MemoryStream();                                      
-
-				//Copying file in memory
-				using (FileStream fs = File.OpenRead(filename))
-				{
-					fs.CopyTo(memoryStream);
-				}
-
-				//Saving memoryStream as array of bytes in workingCopy
-				workingCopy = memoryStream.ToArray();
-				//Disposing memoryStream stream
-				memoryStream.Dispose();
-			}
-			catch (IOException e)
-			{
-				//Disposing memoryStream stream
-				memoryStream.Dispose();
-				//Throwing exception to the caller
-				throw e;
-			}
-			*/
+			stamper.FormFlattening = true;
 		}
 
 		/*!
@@ -79,30 +61,26 @@ namespace ElaborazionePdf
 
 			try
 			{
-				//Reading pdf from the memory copy
-				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))
+				//Getting fields
+				AcroFields form = reader.AcroFields;
+
+				//Analyzing every item
+				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 				{
-					//Getting fields
-					AcroFields form = reader.AcroFields;
-
-					//Analyzing every item
-					foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+					//Cheking if Field type is checkbox or textbox or signaturefield or radiobutton
+					switch (type = form.GetFieldType(kvp.Key))
 					{
-						//Cheking if Field type is checkbox or textbox or signaturefield or radiobutton
-						switch (type = form.GetFieldType(kvp.Key))
-						{
-							case AcroFields.FIELD_TYPE_CHECKBOX:
-							case AcroFields.FIELD_TYPE_RADIOBUTTON:
-							case AcroFields.FIELD_TYPE_SIGNATURE:
-							case AcroFields.FIELD_TYPE_TEXT:
-								//Reading field name
-								string translatedFileName = form.GetTranslatedFieldName(kvp.Key);
+						case AcroFields.FIELD_TYPE_CHECKBOX:
+						case AcroFields.FIELD_TYPE_RADIOBUTTON:
+						case AcroFields.FIELD_TYPE_SIGNATURE:
+						case AcroFields.FIELD_TYPE_TEXT:
+							//Reading field name
+							string translatedFileName = form.GetTranslatedFieldName(kvp.Key);
 
-								//Comparing filed name with the given name
-								if (translatedFileName.Equals(fieldName))
-									return type;
-								break;
-						}
+							//Comparing filed name with the given name
+							if (translatedFileName.Equals(fieldName))
+								return type;
+							break;
 					}
 				}
 			}
@@ -155,56 +133,43 @@ namespace ElaborazionePdf
 		 */
 		public bool FlagCheckbox()
 		{
-			bool found = false;																//Flag indicating if an unchecked checkbox has been found
-			MemoryStream memoryStream = new MemoryStream();									//Creating memorystream where to save data
+			bool found = false;                                                             //Flag indicating if an unchecked checkbox has been found
 
 			try
 			{
-				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
-				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
+				//Getting forms
+				AcroFields form = stamper.AcroFields;
+
+				//Analyzing every item
+				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 				{
-					//Getting forms
-					AcroFields form = stamper.AcroFields;
-
-					//Analyzing every item
-					foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+					//Checking if the form is checkbox
+					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX)
 					{
-						//Checking if the form is checkbox
-						if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX)
+						//Getting field name
+						string name = form.GetTranslatedFieldName(kvp.Key);
+
+						//Getting checkbox's state values (Note: they change according to PDF's language)
+						//Note: values[0] is the unchecked value, values[1] is checked value
+						string[] values = form.GetAppearanceStates(name);
+
+						//If the box isn't checked, we check it
+						if (form.GetField(kvp.Key).Equals(values[0]) || form.GetField(kvp.Key).Length == 0)
 						{
-							//Getting field name
-							string name = form.GetTranslatedFieldName(kvp.Key);
-
-							//Getting checkbox's state values (Note: they change according to PDF's language)
-							//Note: values[0] is the unchecked value, values[1] is checked value
-							string[] values = form.GetAppearanceStates(name);
-
-							//If the box isn't checked, we check it
-							if (form.GetField(kvp.Key).Equals(values[0]) || form.GetField(kvp.Key).Length == 0)
-							{
-								//Changing state and returning true (in case of error it returns false)
-								found = form.SetField(name, values[1]);
-								break;
-							}
+							//Changing state and returning true (in case of error it returns false)
+							found = form.SetField(name, values[1]);
+							break;
 						}
 					}
-					//Disabling flattening because the file could be modified untill the call of save()
-					stamper.FormFlattening = false;
 				}
+				//Disabling flattening because the file could be modified untill the call of save()
+				stamper.FormFlattening = false;
 			}
 			catch (IOException e)
 			{
-				//Closing stream
-				memoryStream.Dispose();
 				//Throwing exception to the caller
 				throw e;
 			}
-
-			//Saving the working copy
-			workingCopy = memoryStream.ToArray();
-
-			//Disposing memoryStream
-			memoryStream.Dispose();
 
 			return found;
 		}
@@ -218,56 +183,51 @@ namespace ElaborazionePdf
 		public bool SubstituteSignature()
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
 
 			string key = null;
 			IList<FieldPosition> positions = null;
 
 			try
 			{
-				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
-				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
+
+				//Getting forms
+				AcroFields form = stamper.AcroFields;
+
+				ArrayList arr = new ArrayList();
+
+				//Analyzing every item
+				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 				{
+					arr.Add(kvp.Key);
 
-					//Getting forms
-					AcroFields form = stamper.AcroFields;
-
-					ArrayList arr = new ArrayList();
-
-					//Analyzing every item
-					foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+					//Checking if the form is checkbox
+					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE)
 					{
-						arr.Add(kvp.Key);
+						//Getting field's key
+						key = kvp.Key;
+						//Getting field's position(s)
+						positions = form.GetFieldPositions(form.GetTranslatedFieldName(kvp.Key));
 
-						//Checking if the form is checkbox
-						if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE)
+						//Removing field
+						form.RemoveField(key);
+
+						//Creating new checkbox with signaturefield's coordinates
+						//Note: We're replacing the first occurrence
+						RadioCheckField checkbox = new RadioCheckField(stamper.Writer, positions[0].position, "i_was_a_signature_field", "Yes")
 						{
-							//Getting field's key
-							key = kvp.Key;
-							//Getting field's position(s)
-							positions = form.GetFieldPositions(form.GetTranslatedFieldName(kvp.Key));
+							//Setting look
+							CheckType = RadioCheckField.TYPE_CHECK,
+							Checked = true,
+							BorderWidth = BaseField.BORDER_WIDTH_THIN,
+							BorderColor = BaseColor.BLACK,
+							BackgroundColor = BaseColor.WHITE
+						};
 
-							//Removing field
-							form.RemoveField(key);
+						//Adding checbox in signaturefield's page
+						stamper.AddAnnotation(checkbox.CheckField, positions[0].page);
 
-							//Creating new checkbox with signaturefield's coordinates
-							//Note: We're replacing the first occurrence
-							RadioCheckField checkbox = new RadioCheckField(stamper.Writer, positions[0].position, "i_was_a_signature_field", "Yes")
-							{
-								//Setting look
-								CheckType = RadioCheckField.TYPE_CHECK,
-								Checked = true,
-								BorderWidth = BaseField.BORDER_WIDTH_THIN,
-								BorderColor = BaseColor.BLACK,
-								BackgroundColor = BaseColor.WHITE
-							};
-
-							//Adding checbox in signaturefield's page
-							stamper.AddAnnotation(checkbox.CheckField, positions[0].page);
-
-							found = true;
-							break;
-						}
+						found = true;
+						break;
 					}
 					//Disabling flattening because the file could be modified untill the call of save()
 					stamper.FormFlattening = false;
@@ -275,17 +235,9 @@ namespace ElaborazionePdf
 			}
 			catch (IOException e)
 			{
-				//Closing stream
-				memoryStream.Dispose();
 				//Throwing exception to the caller
 				throw e;
 			}
-
-			//Saving the working copy
-			workingCopy = memoryStream.ToArray();
-
-			//Disposing memoryStream
-			memoryStream.Dispose();
 
 			return found;
 		}
@@ -299,13 +251,9 @@ namespace ElaborazionePdf
 		public bool SelectRadiobutton()
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
-
+			
 			try
 			{
-				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
-				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
-				{
 					//Getting forms
 					AcroFields form = stamper.AcroFields;
 
@@ -326,21 +274,12 @@ namespace ElaborazionePdf
 					}
 					//Disabling flattening because the file could be modified untill the call of save()
 					stamper.FormFlattening = false;
-				}
 			}
 			catch (IOException e)
 			{
-				//Closing stream
-				memoryStream.Dispose();
 				//Throwing exception to the caller
 				throw e;
 			}
-
-			//Saving the working copy
-			workingCopy = memoryStream.ToArray();
-
-			//Disposing memoryStream
-			memoryStream.Dispose();
 
 			return found;
 		}
@@ -354,13 +293,9 @@ namespace ElaborazionePdf
 		public bool InsertTextInField(string fieldName, string text)
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
 
 			try
 			{
-				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
-				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
-				{
 					//Getting forms
 					AcroFields form = stamper.AcroFields;
 
@@ -382,21 +317,12 @@ namespace ElaborazionePdf
 					}
 					//Disabling flattening because the file could be modified untill the call of save()
 					stamper.FormFlattening = false;
-				}
 			}
 			catch (IOException e)
 			{
-				//Closing stream
-				memoryStream.Dispose();
 				//Throwing exception to the caller
 				throw e;
 			}
-
-			//Saving the working copy
-			workingCopy = memoryStream.ToArray();
-
-			//Disposing memoryStream
-			memoryStream.Dispose();
 
 			return found;
 		}
@@ -408,46 +334,26 @@ namespace ElaborazionePdf
 		 */
 		public void Save()
 		{
-			//Flattening the pdf
-			FlatteningPdf();
-			//Saving to file
-			using (var fs = new FileStream(filename_out, FileMode.Create, FileAccess.Write))
+			
+
+			var contenuto = memoryStream.ToArray();
+			//Console.WriteLine("> " + Encoding.Default.GetString(contenuto));
+
+			using(PdfStamper filestamper = new PdfStamper(new PdfReader(memoryStream), new FileStream(filename_out, FileMode.Create)))
 			{
-				fs.Write(workingCopy, 0, workingCopy.Length);
+				stamper.FormFlattening = true;
 			}
+			//Closing stamper
+			stamper.Dispose();
+			//Closing memorystream
+			memoryStream.Dispose();
 		}
 
-		/*!
-		 METODO 6.1: "Appiattimento" del pdf prima della scrittura su file
-
-		 Flattening of the pdf before writing to file
-		 */
-		private void FlatteningPdf()
+		private static void CloseProgram()
 		{
-			MemoryStream memoryStream = new MemoryStream();									//Creating memorystream where to save data
-
-			try
-			{
-				using (PdfReader reader = new PdfReader(new MemoryStream(workingCopy)))    //Reading the working copy
-				using (PdfStamper stamper = new PdfStamper(reader, memoryStream))
-				{
-					//Disabling flattening because the file could be modified untill the call of save()
-					stamper.FormFlattening = true;
-				}
-			}
-			catch (IOException e)
-			{
-				//Closing stream
-				memoryStream.Dispose();
-				//Throwing exception to the caller
-				throw e;
-			}
-
-			//Saving the working copy
-			workingCopy = memoryStream.ToArray();
-
-			//Disposing memoryStream
-			memoryStream.Dispose();
+			Console.WriteLine("\n\nPress any key to exit...");
+			Console.ReadLine();
+			System.Environment.Exit(1);
 		}
 
 		/*************************************************************************
@@ -457,10 +363,10 @@ namespace ElaborazionePdf
 		static void Main(string[] args)
 		{
 			int option = 0;
-
+			PdfDocument p;
 			try
 			{
-				PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf");
+				p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf");
 				Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
 
 				do
@@ -501,12 +407,13 @@ namespace ElaborazionePdf
 					}
 				}
 				while (option != 7);
-
 			}
-			catch(IOException e)
+			catch (IOException e)
 			{
 				Console.WriteLine(e);
+				CloseProgram();
 			}
+			Console.ReadLine();
 		}
 
 	}

@@ -59,9 +59,6 @@
     <None Include="TestFiles\Richiesta di adesione e Condizioni relative all%27uso della firma elettronica avanzata_signaturefield.pdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="TestFiles\Richiesta di adesione e Condizioni relative all%27uso della firma elettronica avanzata_signaturefield_modified.pdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Include="TestFiles\test_radiobutton.pdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
