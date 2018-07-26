@@ -28,13 +28,6 @@ namespace ElaborazionePdf
 			LoadFile();
 		}
 
-		public void DisposeAll()
-		{
-			reader.Dispose();
-			stamper.Dispose();
-			memoryStream.Dispose();
-		}
-
 		/*!
 		 Loading the input file into memory
 		 */
@@ -190,7 +183,6 @@ namespace ElaborazionePdf
 
 			try
 			{
-
 				//Getting forms
 				AcroFields form = stamper.AcroFields;
 
@@ -252,29 +244,29 @@ namespace ElaborazionePdf
 		public bool SelectRadiobutton()
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			
+
 			try
 			{
-					//Getting forms
-					AcroFields form = stamper.AcroFields;
+				//Getting forms
+				AcroFields form = stamper.AcroFields;
 
-					//Analyzing every item
-					foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+				//Analyzing every item
+				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+				{
+					//Cheking if textfield
+					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
 					{
-						//Cheking if textfield
-						if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
-						{
-							string name = form.GetTranslatedFieldName(kvp.Key);
+						string name = form.GetTranslatedFieldName(kvp.Key);
 
-							//Getting radiobutton values
-							string[] values = form.GetAppearanceStates(kvp.Key);
+						//Getting radiobutton values
+						string[] values = form.GetAppearanceStates(kvp.Key);
 
-							//Setting the first value
-							found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
-						}
+						//Setting the first value
+						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
 					}
-					//Disabling flattening because the file could be modified untill the call of save()
-					stamper.FormFlattening = false;
+				}
+				//Disabling flattening because the file could be modified untill the call of save()
+				stamper.FormFlattening = false;
 			}
 			catch (IOException e)
 			{
@@ -297,27 +289,27 @@ namespace ElaborazionePdf
 
 			try
 			{
-					//Getting forms
-					AcroFields form = stamper.AcroFields;
+				//Getting forms
+				AcroFields form = stamper.AcroFields;
 
-					//Analyzing every item
-					foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+				//Analyzing every item
+				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+				{
+
+					//Cheking if textfield
+					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT)
 					{
-
-						//Cheking if textfield
-						if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT)
+						//Checking field name
+						if (form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))
 						{
-							//Checking field name
-							if (form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))
-							{
-								found = true;
-								form.SetField(fieldName, text);
-								break;
-							}
+							found = true;
+							form.SetField(fieldName, text);
+							break;
 						}
 					}
-					//Disabling flattening because the file could be modified untill the call of save()
-					stamper.FormFlattening = false;
+				}
+				//Disabling flattening because the file could be modified untill the call of save()
+				stamper.FormFlattening = false;
 			}
 			catch (IOException e)
 			{
@@ -336,21 +328,29 @@ namespace ElaborazionePdf
 		public void Save()
 		{
 
-//Closing stamper
+			//Closing stamper
 			stamper.Dispose();
-			var contenuto = memoryStream.ToArray();
-			//Console.WriteLine("> " + Encoding.Default.GetString(contenuto));
-			using (PdfReader reader2 = new PdfReader(contenuto))
-			using (PdfStamper filestamper = new PdfStamper(reader2, new FileStream(filename_out, FileMode.Create)))
-			{
-				var aa = reader2.ToString();
-				Console.WriteLine("> " + aa);
-				filestamper.FormFlattening = true;
-			}
-			
+			//Disposing reader
+			reader.Dispose();
+
+			//Saving data
+			var data = memoryStream.ToArray();
+
 			//Closing memorystream
 			memoryStream.Dispose();
+
+			//Saving on file
+			using (PdfReader dataReader = new PdfReader(data))
+			using (PdfStamper filestamper = new PdfStamper(dataReader, new FileStream(filename_out, FileMode.Create)))
+			{
+				//Setting Flattening
+				filestamper.FormFlattening = true;
+			}
 		}
+
+		/*!
+		 Press any key to exit...
+		 */
 
 		private static void CloseProgram()
 		{
@@ -409,13 +409,13 @@ namespace ElaborazionePdf
 							break;
 					}
 				}
-				while (option != 7);
+				while (option >= 7 && option !=6);
 			}
 			catch (IOException e)
 			{
 				Console.WriteLine(e);
-				CloseProgram();
 			}
+			CloseProgram();
 		}
 
 	}
