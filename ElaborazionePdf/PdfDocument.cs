@@ -26,32 +26,31 @@ namespace ElaborazionePdf
 		}
 
 		/*!
-		 Asking to press any key to exit and terminating
-		 */
-		private void CloseProgram()
-		{
-			Console.WriteLine("\n\nPress any key to exit...");
-			Console.ReadLine();
-			System.Environment.Exit(1);
-		}
-
-		/*!
 		 Loading the input file into memory
 		 */
 		private void LoadFile()
 		{
+			MemoryStream memoryStream = null;
+
 			try
 			{
-				using (MemoryStream memoryStream = new MemoryStream())                          //Creating a new MemoryStream
-				using (PdfReader reader = new PdfReader(filename))                      //Creating a PdfReader
-				using (PdfStamper stamper = new PdfStamper(reader, memoryStream)) {    //Reading the file and saving it to memoryStream
+				memoryStream = new MemoryStream();                                      //Creating a new MemoryStream
+
+				//Copying file in memory
+				using (FileStream fs = File.OpenRead(filename))
+				{
+					fs.CopyTo(memoryStream);
+				}
 
 				//Saving memoryStream as array of bytes in workingCopy
 				workingCopy = memoryStream.ToArray();
-				}
+				//Disposing memoryStream stream
+				memoryStream.Dispose();
 			}
 			catch (IOException e)
 			{
+				//Disposing memoryStream stream
+				memoryStream.Dispose();
 				//Throwing exception to the caller
 				throw e;
 			}
@@ -69,7 +68,7 @@ namespace ElaborazionePdf
 		{
 			PdfReader reader = null;                                //Creating a PdfReader
 			int type;                                               //Type of field
-
+			Console.WriteLine(workingCopy.Length);
 			try
 			{
 				//Reading pdf from the memory copy
@@ -476,8 +475,16 @@ namespace ElaborazionePdf
 		{
 			try
 			{
-				PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf");
+				PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf");
 				Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
+
+				//Calling method 1
+				int fieldType = p.GetAcrofieldType("Nome");
+				Console.WriteLine("Looking for field named \"Nome\"...");
+				if (fieldType != -1)
+					Console.WriteLine("Found type: " + fieldType + " (" + p.GetFormType(fieldType) + ")");
+				else
+					Console.WriteLine("Field not found or illegal field type");
 			}
 			catch(IOException e)
 			{
