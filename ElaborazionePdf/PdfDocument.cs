@@ -13,7 +13,10 @@ namespace ElaborazionePdf
 	{
 		private string filename;					//Filename
 		private Byte[] workingCopy;					//File's working copy
-		private string filename_out;				//Filename for the modified file
+		private string filename_out;                //Filename for the modified file
+
+		private PdfStamper stamper;
+		private PdfReader reader;
 
 		public PdfDocument(string filename)
 		{
@@ -30,6 +33,10 @@ namespace ElaborazionePdf
 		 */
 		private void LoadFile()
 		{
+			MemoryStream memoryStream = new MemoryStream();
+			reader = new PdfReader(filename);
+			stamper = new PdfStamper(reader, memoryStream);
+			/*
 			MemoryStream memoryStream = null;
 
 			try
@@ -55,6 +62,7 @@ namespace ElaborazionePdf
 				//Throwing exception to the caller
 				throw e;
 			}
+			*/
 		}
 
 		/*!
