@@ -339,17 +339,11 @@ namespace ElaborazionePdf
 		 */
 		public void Save()
 		{
-
 			//Closing stamper
 			stamper.Dispose();
-			//Disposing reader
-			reader.Dispose();
 
 			//Saving data
 			var data = memoryStream.ToArray();
-
-			//Closing memorystream
-			memoryStream.Dispose();
 
 			//Saving on file
 			using (PdfReader dataReader = new PdfReader(data))
