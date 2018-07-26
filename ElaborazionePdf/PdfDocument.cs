@@ -58,8 +58,6 @@ namespace ElaborazionePdf
 				memoryStream.Dispose();
 				//Showing error
 				Console.WriteLine("ERROR: " + e);
-				//Closing program
-				CloseProgram();
 			}
 		}
 
@@ -111,8 +109,6 @@ namespace ElaborazionePdf
 				reader.Dispose();
 				//Showing error
 				Console.WriteLine("ERROR: " + e);
-				//Closing program
-				CloseProgram();
 			}
 
 			//Closing stream
@@ -128,7 +124,7 @@ namespace ElaborazionePdf
 		 @param[out] string	Field type (human readable)
 		 @param[in]  int	Field type
 		 */
-		private static string GetFormType(int num)
+		public string GetFormType(int num)
 		{
 			switch (num)
 			{
@@ -205,8 +201,6 @@ namespace ElaborazionePdf
 				memoryStream.Dispose();
 				//Showing error
 				Console.WriteLine("ERROR: " + e);
-				//Closing program
-				CloseProgram();
 			}
 
 			//Disposing reader
@@ -292,8 +286,6 @@ namespace ElaborazionePdf
 				memoryStream.Dispose();
 				//Showing error
 				Console.WriteLine("ERROR: " + e);
-				//Closing program
-				CloseProgram();
 			}
 
 			//Disposing reader
@@ -352,8 +344,6 @@ namespace ElaborazionePdf
 				memoryStream.Dispose();
 				//Showing error
 				Console.WriteLine("ERROR: " + e);
-				//Closing program
-				CloseProgram();
 			}
 
 			//Disposing reader
@@ -414,8 +404,6 @@ namespace ElaborazionePdf
 				memoryStream.Dispose();
 				//Showing error
 				Console.WriteLine("ERROR: " + e);
-				//Closing program
-				CloseProgram();
 			}
 
 			//Disposing reader
@@ -472,8 +460,6 @@ namespace ElaborazionePdf
 				memoryStream.Dispose();
 				//Showing error
 				Console.WriteLine("ERROR: " + e);
-				//Closing program
-				CloseProgram();
 			}
 
 			//Disposing reader
@@ -492,9 +478,10 @@ namespace ElaborazionePdf
 
 		static void Main(string[] args)
 		{
+			
 			PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf");
 			Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
-
+/*
 			//Calling method 1
 			int fieldType = p.GetAcrofieldType("Nome");
 			Console.WriteLine("Looking for field named \"Nome\"...");
@@ -518,11 +505,13 @@ namespace ElaborazionePdf
 
 			//Calling method 6
 			p.Save();
+			*/
 
-#if DEBUG
-			Console.WriteLine("Press any key to exit...");
-			Console.ReadLine();
-#endif
+
+			#if DEBUG
+				Console.WriteLine("Press any key to exit...");
+				Console.ReadLine();
+			#endif
 		}
 
 	}
