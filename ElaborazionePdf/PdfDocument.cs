@@ -145,10 +145,10 @@ namespace ElaborazionePdf
 		 Locking for a checkbox and checking it
 		 @param[out] bool	Operation result
 		 */
-		private bool FlagCheckbox()
+		public bool FlagCheckbox()
 		{
-			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			MemoryStream memoryStream = new MemoryStream();                     //Creating memorystream where to save data
+			bool found = false;																//Flag indicating if an unchecked checkbox has been found
+			MemoryStream memoryStream = new MemoryStream();									//Creating memorystream where to save data
 
 			try
 			{
@@ -336,7 +336,6 @@ namespace ElaborazionePdf
 
 			return found;
 		}
-
 
 		/*!
 		 METODO 5: Inserire un testo in un acrofield ti tipo testo
