@@ -14,9 +14,11 @@ namespace ElaborazionePdf
 		private string filename;                    //Filename
 		private string filename_out;                //Filename for the modified file
 
-		private PdfStamper stamper;
-		private PdfReader reader;
-		private MemoryStream memoryStream;
+		private PdfStamper stamper = null;
+		private PdfReader reader = null;
+		private MemoryStream memoryStream = null;
+
+		private bool stamperDisposed = false;		//Indicating if some resources has been disposed
 
 		public PdfDocument(string filename)
 		{
@@ -32,11 +34,61 @@ namespace ElaborazionePdf
 		/*!
 		 Implementing Dispose()
 		 */
+
+		~PdfDocument()
+		{
+			Dispose(false);
+		}
+
 		public void Dispose()
 		{
-			stamper.Dispose();
-			reader.Dispose();
-			memoryStream.Dispose();
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				//Disposing Stamper if not alerady disposed
+				if (!stamperDisposed && stamper != null)
+				{
+					try
+					{
+						stamper.Dispose();
+					}
+					catch (Exception e)
+					{
+						Console.Write("ERROR WHILE DIPOSING STAMPER:\n" + e);
+					}
+				}
+
+				//Disposing reader
+				if (reader != null)
+				{
+					try
+					{
+						reader.Dispose();
+					}
+					catch (Exception e)
+					{
+						Console.Write("ERROR WHILE DIPOSING READER:\n" + e);
+					}
+				}
+
+				//Disposing memoryStream
+				if (memoryStream != null)
+				{
+					try
+					{
+						memoryStream.Dispose();
+					}
+					catch (Exception e)
+					{
+						Console.Write("ERROR WHILE DIPOSING MEMORYSTREAM:\n" + e);
+					}
+				}
+			}
 		}
 		#endregion
 
@@ -168,8 +220,6 @@ namespace ElaborazionePdf
 						}
 					}
 				}
-				//Disabling flattening because the file could be modified untill the call of save()
-				stamper.FormFlattening = false;
 			}
 			catch (IOException e)
 			{
@@ -234,8 +284,6 @@ namespace ElaborazionePdf
 						found = true;
 						break;
 					}
-					//Disabling flattening because the file could be modified untill the call of save()
-					stamper.FormFlattening = false;
 				}
 			}
 			catch (IOException e)
@@ -277,8 +325,6 @@ namespace ElaborazionePdf
 						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
 					}
 				}
-				//Disabling flattening because the file could be modified untill the call of save()
-				stamper.FormFlattening = false;
 			}
 			catch (IOException e)
 			{
@@ -320,8 +366,6 @@ namespace ElaborazionePdf
 						}
 					}
 				}
-				//Disabling flattening because the file could be modified untill the call of save()
-				stamper.FormFlattening = false;
 			}
 			catch (IOException e)
 			{
@@ -352,17 +396,18 @@ namespace ElaborazionePdf
 				//Setting Flattening
 				filestamper.FormFlattening = true;
 			}
+
+			//Notifying that stamper has been disposed
+			stamperDisposed = true;
 		}
 
 		/*!
 		 Press any key to exit...
 		 */
-
 		private static void CloseProgram()
 		{
 			Console.WriteLine("\n\nPress any key to exit...");
 			Console.ReadLine();
-			System.Environment.Exit(1);
 		}
 
 		/*************************************************************************
@@ -372,6 +417,7 @@ namespace ElaborazionePdf
 		static void Main(string[] args)
 		{
 			int option = 0;
+
 			try
 			{
 				using (PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf"))
@@ -382,11 +428,13 @@ namespace ElaborazionePdf
 					{
 						Console.WriteLine("\nMENU\n\n1. Metodo: ricerca di un acrofield generico per name, l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton)\n2. Metodo: per flaggare un acrofield di tipo checkbox\n3. Metodo: per sostituire un acrofield di tipo signature con un acrofield di tipo checkbox\n4. Metodo: per selezionare un acrofield di tipo radiobutton\n5. Metodo: per inserire un testo in un acrofield di tipo testo\n6. Metodo: per ottenere il pdf elaborato\n7. Esci\n\nInserisci la tua scelta:");
 						option = Int32.Parse(Console.ReadLine());
+
 						switch (option)
 						{
 							case 1:
 								int fieldType = p.GetAcrofieldType("Nome");
 								Console.WriteLine("Looking for field named \"Nome\"...");
+
 								if (fieldType != -1)
 									Console.WriteLine("Found type: " + fieldType + " (" + GetFormType(fieldType) + ")");
 								else
@@ -415,7 +463,7 @@ namespace ElaborazionePdf
 								break;
 						}
 					}
-					while (option >= 7 && option != 6);
+					while (option <= 7 && option != 6);
 				}
 			}
 			catch (IOException e)
@@ -424,6 +472,5 @@ namespace ElaborazionePdf
 			}
 			CloseProgram();
 		}
-
 	}
 }
