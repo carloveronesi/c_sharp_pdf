@@ -6,6 +6,7 @@ using System.Text;
 using System.Collections;
 using static iTextSharp.text.pdf.AcroFields;
 using iTextSharp.text;
+using System.Diagnostics;
 
 namespace ElaborazionePdf
 {
@@ -20,21 +21,29 @@ namespace ElaborazionePdf
 
 		private bool stamperDisposed = false;       //Indicating if some resources has been disposed
 
+		/*!
+		Getters and setters
+		*/
+		public string Filename { get => filename; set => filename = value; }
+		public string Filename_out { get => filename_out; set => filename_out = value; }
+
+		/*!
+		 Constructor
+		 */
 		public PdfDocument(string filename)
 		{
 			//Saving filename
 			this.filename = filename;
 			//Generating output file name (filename + _modified.pdf)
-			filename_out = filename.Substring(0, filename.Length - 4) + "_modified.pdf";
+			Filename_out = filename.Substring(0, filename.Length - 4) + "_modified.pdf";
 			//Loading file
 			LoadFile();
 		}
 
-		#region IDisposable Members
 		/*!
 		 Implementing Dispose()
 		 */
-
+		#region IDisposable Members
 		~PdfDocument()
 		{
 			Dispose(false);
@@ -351,7 +360,7 @@ namespace ElaborazionePdf
 
 			//Saving on file
 			using (PdfReader dataReader = new PdfReader(data))
-			using (PdfStamper filestamper = new PdfStamper(dataReader, new FileStream(filename_out, FileMode.Create)))
+			using (PdfStamper filestamper = new PdfStamper(dataReader, new FileStream(Filename_out, FileMode.Create)))
 			{
 				//Setting Flattening
 				filestamper.FormFlattening = true;
@@ -361,19 +370,12 @@ namespace ElaborazionePdf
 			stamperDisposed = true;
 		}
 
-		/*!
-		 Press any key to exit...
-		 */
-		private static void CloseProgram()
-		{
-			Console.WriteLine("\n\nPress any key to exit...");
-			Console.ReadLine();
-		}
-
-		/*************************************************************************
-		 * Main di prova
-		 *************************************************************************/
-
+	}
+	/*************************************************************************
+	 * Main di prova
+	 *************************************************************************/
+	public class Test
+	{
 		static void Main(string[] args)
 		{
 			int option = 0;
@@ -382,8 +384,6 @@ namespace ElaborazionePdf
 			{
 				using (PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf"))
 				{
-					Console.WriteLine("Opening file file: \"" + p.filename + "\"\n");
-
 					do
 					{
 						Console.WriteLine("\nMENU\n\n1. Metodo: ricerca di un acrofield generico per name, l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton)\n2. Metodo: per flaggare un acrofield di tipo checkbox\n3. Metodo: per sostituire un acrofield di tipo signature con un acrofield di tipo checkbox\n4. Metodo: per selezionare un acrofield di tipo radiobutton\n5. Metodo: per inserire un testo in un acrofield di tipo testo\n6. Metodo: per ottenere il pdf elaborato\n7. Esci\n\nInserisci la tua scelta:");
@@ -396,7 +396,7 @@ namespace ElaborazionePdf
 								Console.WriteLine("Looking for field named \"Nome\"...");
 
 								if (fieldType != -1)
-									Console.WriteLine("Found type: " + fieldType + " (" + GetFormType(fieldType) + ")");
+									Console.WriteLine("Found type: " + fieldType + " (" + PdfDocument.GetFormType(fieldType) + ")");
 								else
 									Console.WriteLine("Field not found or illegal field type");
 								break;
@@ -414,7 +414,7 @@ namespace ElaborazionePdf
 								break;
 							case 6:
 								p.Save();
-								Console.WriteLine("File \"" + p.filename_out + "\" saved.");
+								Console.WriteLine("File \"" + p.Filename_out + "\" saved.");
 								break;
 							case 7:
 								break;
@@ -431,6 +431,16 @@ namespace ElaborazionePdf
 				Console.WriteLine(e);
 			}
 			CloseProgram();
+		}
+
+
+		/*!
+		 Press any key to exit...
+		 */
+		private static void CloseProgram()
+		{
+			Console.WriteLine("\n\nPress any key to exit...");
+			Console.ReadLine();
 		}
 	}
 }
