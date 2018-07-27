@@ -439,7 +439,7 @@ namespace ElaborazionePdf
 								break;
 						}
 					}
-					while (option != 6);
+					while (option < 6 || option > 7);
 				}
 			}
 			catch (Exception e)
