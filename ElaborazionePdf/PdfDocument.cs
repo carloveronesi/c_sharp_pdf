@@ -73,7 +73,6 @@ namespace ElaborazionePdf
 					catch (Exception e)
 					{
 						Console.Write("ERROR WHILE DIPOSING READER:\n" + e);
-						throw new Exception("A custom message for an application specific exception");
 					}
 				}
 
