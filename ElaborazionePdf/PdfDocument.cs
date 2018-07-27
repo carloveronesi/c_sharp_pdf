@@ -12,14 +12,16 @@ namespace ElaborazionePdf
 {
 	public class PdfDocument : IDisposable
 	{
-		private string filename;                    //Filename
-		private string filename_out;                //Filename for the modified file
-
+		private string filename;						//Filename
+		private string filename_out;					//Filename for the modified file
 		private PdfStamper stamper = null;
 		private PdfReader reader = null;
 		private MemoryStream memoryStream = null;
+		private bool stamperDisposed = false;			//Indicating if some resources has been disposed				
+		static LoggerFunction delegateFunction = null;	//Logger function delegate
 
-		private bool stamperDisposed = false;       //Indicating if some resources has been disposed
+		//Logger delegate protorype
+		public delegate void LoggerFunction(string text);
 
 		/*!
 		Getters and setters
@@ -30,8 +32,10 @@ namespace ElaborazionePdf
 		/*!
 		 Constructor
 		 */
-		public PdfDocument(string filename)
+		public PdfDocument(string filename, LoggerFunction funct)
 		{
+			//Delegating logger
+			delegateFunction = funct;
 			//Saving filename
 			this.filename = filename;
 			//Generating output file name (filename + _modified.pdf)
@@ -68,7 +72,8 @@ namespace ElaborazionePdf
 					}
 					catch (Exception e)
 					{
-						Console.Write("ERROR WHILE DIPOSING STAMPER:\n" + e);
+						//Calling logger
+						Log("ERROR WHILE DIPOSING STAMPER:\n" + e.ToString());
 					}
 				}
 
@@ -81,7 +86,8 @@ namespace ElaborazionePdf
 					}
 					catch (Exception e)
 					{
-						Console.Write("ERROR WHILE DIPOSING READER:\n" + e);
+						//Calling logger
+						Log("ERROR WHILE DIPOSING READER:\n" + e.ToString());
 					}
 				}
 
@@ -94,7 +100,8 @@ namespace ElaborazionePdf
 					}
 					catch (Exception e)
 					{
-						Console.Write("ERROR WHILE DIPOSING MEMORYSTREAM:\n" + e);
+						//Calling logger
+						Log("ERROR WHILE DIPOSING MEMORYSTREAM:\n" + e.ToString());
 					}
 				}
 			}
@@ -370,6 +377,15 @@ namespace ElaborazionePdf
 			stamperDisposed = true;
 		}
 
+		/*!
+		 Logger
+		 */
+		private static void Log(string msg)
+		{
+			//Calling delegate logger function if exists
+			delegateFunction?.Invoke(msg);
+		}
+
 	}
 	/*************************************************************************
 	 * Main di prova
@@ -382,7 +398,7 @@ namespace ElaborazionePdf
 
 			try
 			{
-				using (PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf"))
+				using (PdfDocument p = new PdfDocument(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf", PrintLog))
 				{
 					do
 					{
@@ -433,6 +449,14 @@ namespace ElaborazionePdf
 			CloseProgram();
 		}
 
+		/*!
+		 Caller's Logger function
+		 */
+		static void PrintLog(string x) {
+			Console.WriteLine("----------Logger message----------");
+			Console.WriteLine(x);
+			Console.WriteLine("----------------------------------");
+		}
 
 		/*!
 		 Press any key to exit...
