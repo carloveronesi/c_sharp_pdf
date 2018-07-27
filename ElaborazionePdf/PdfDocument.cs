@@ -7,7 +7,7 @@ using System.Collections;
 using static iTextSharp.text.pdf.AcroFields;
 using iTextSharp.text;
 
-namespace ElaborazionePdf 
+namespace ElaborazionePdf
 {
 	public class PdfDocument : IDisposable
 	{
@@ -18,7 +18,7 @@ namespace ElaborazionePdf
 		private PdfReader reader = null;
 		private MemoryStream memoryStream = null;
 
-		private bool stamperDisposed = false;		//Indicating if some resources has been disposed
+		private bool stamperDisposed = false;       //Indicating if some resources has been disposed
 
 		public PdfDocument(string filename)
 		{
@@ -73,6 +73,7 @@ namespace ElaborazionePdf
 					catch (Exception e)
 					{
 						Console.Write("ERROR WHILE DIPOSING READER:\n" + e);
+						throw new Exception("A custom message for an application specific exception");
 					}
 				}
 
@@ -117,35 +118,27 @@ namespace ElaborazionePdf
 		{
 			int type;                                               //Type of field
 
-			try
-			{
-				//Getting fields
-				AcroFields form = reader.AcroFields;
+			//Getting fields
+			AcroFields form = reader.AcroFields;
 
-				//Analyzing every item
-				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			{
+				//Cheking if Field type is checkbox or textbox or signaturefield or radiobutton
+				switch (type = form.GetFieldType(kvp.Key))
 				{
-					//Cheking if Field type is checkbox or textbox or signaturefield or radiobutton
-					switch (type = form.GetFieldType(kvp.Key))
-					{
-						case AcroFields.FIELD_TYPE_CHECKBOX:
-						case AcroFields.FIELD_TYPE_RADIOBUTTON:
-						case AcroFields.FIELD_TYPE_SIGNATURE:
-						case AcroFields.FIELD_TYPE_TEXT:
-							//Reading field name
-							string translatedFileName = form.GetTranslatedFieldName(kvp.Key);
+					case AcroFields.FIELD_TYPE_CHECKBOX:
+					case AcroFields.FIELD_TYPE_RADIOBUTTON:
+					case AcroFields.FIELD_TYPE_SIGNATURE:
+					case AcroFields.FIELD_TYPE_TEXT:
+						//Reading field name
+						string translatedFileName = form.GetTranslatedFieldName(kvp.Key);
 
-							//Comparing filed name with the given name
-							if (translatedFileName.Equals(fieldName))
-								return type;
-							break;
-					}
+						//Comparing filed name with the given name
+						if (translatedFileName.Equals(fieldName))
+							return type;
+						break;
 				}
-			}
-			catch (IOException e)
-			{
-				//Throwing exception to the caller
-				throw e;
 			}
 
 			//Returning -1 in case of error or different field type
@@ -193,38 +186,30 @@ namespace ElaborazionePdf
 		{
 			bool found = false;                                                             //Flag indicating if an unchecked checkbox has been found
 
-			try
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 			{
-				//Getting forms
-				AcroFields form = stamper.AcroFields;
-
-				//Analyzing every item
-				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+				//Checking if the form is checkbox
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX)
 				{
-					//Checking if the form is checkbox
-					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX)
+					//Getting field name
+					string name = form.GetTranslatedFieldName(kvp.Key);
+
+					//Getting checkbox's state values (Note: they change according to PDF's language)
+					//Note: values[0] is the unchecked value, values[1] is checked value
+					string[] values = form.GetAppearanceStates(name);
+
+					//If the box isn't checked, we check it
+					if (form.GetField(kvp.Key).Equals(values[0]) || form.GetField(kvp.Key).Length == 0)
 					{
-						//Getting field name
-						string name = form.GetTranslatedFieldName(kvp.Key);
-
-						//Getting checkbox's state values (Note: they change according to PDF's language)
-						//Note: values[0] is the unchecked value, values[1] is checked value
-						string[] values = form.GetAppearanceStates(name);
-
-						//If the box isn't checked, we check it
-						if (form.GetField(kvp.Key).Equals(values[0]) || form.GetField(kvp.Key).Length == 0)
-						{
-							//Changing state and returning true (in case of error it returns false)
-							found = form.SetField(name, values[1]);
-							break;
-						}
+						//Changing state and returning true (in case of error it returns false)
+						found = form.SetField(name, values[1]);
+						break;
 					}
 				}
-			}
-			catch (IOException e)
-			{
-				//Throwing exception to the caller
-				throw e;
 			}
 
 			return found;
@@ -243,53 +228,45 @@ namespace ElaborazionePdf
 			string key = null;
 			IList<FieldPosition> positions = null;
 
-			try
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
+
+			ArrayList arr = new ArrayList();
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 			{
-				//Getting forms
-				AcroFields form = stamper.AcroFields;
+				arr.Add(kvp.Key);
 
-				ArrayList arr = new ArrayList();
-
-				//Analyzing every item
-				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+				//Checking if the form is checkbox
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE)
 				{
-					arr.Add(kvp.Key);
+					//Getting field's key
+					key = kvp.Key;
+					//Getting field's position(s)
+					positions = form.GetFieldPositions(form.GetTranslatedFieldName(kvp.Key));
 
-					//Checking if the form is checkbox
-					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE)
+					//Removing field
+					form.RemoveField(key);
+
+					//Creating new checkbox with signaturefield's coordinates
+					//Note: We're replacing the first occurrence
+					RadioCheckField checkbox = new RadioCheckField(stamper.Writer, positions[0].position, "i_was_a_signature_field", "Yes")
 					{
-						//Getting field's key
-						key = kvp.Key;
-						//Getting field's position(s)
-						positions = form.GetFieldPositions(form.GetTranslatedFieldName(kvp.Key));
+						//Setting look
+						CheckType = RadioCheckField.TYPE_CHECK,
+						Checked = true,
+						BorderWidth = BaseField.BORDER_WIDTH_THIN,
+						BorderColor = BaseColor.BLACK,
+						BackgroundColor = BaseColor.WHITE
+					};
 
-						//Removing field
-						form.RemoveField(key);
+					//Adding checbox in signaturefield's page
+					stamper.AddAnnotation(checkbox.CheckField, positions[0].page);
 
-						//Creating new checkbox with signaturefield's coordinates
-						//Note: We're replacing the first occurrence
-						RadioCheckField checkbox = new RadioCheckField(stamper.Writer, positions[0].position, "i_was_a_signature_field", "Yes")
-						{
-							//Setting look
-							CheckType = RadioCheckField.TYPE_CHECK,
-							Checked = true,
-							BorderWidth = BaseField.BORDER_WIDTH_THIN,
-							BorderColor = BaseColor.BLACK,
-							BackgroundColor = BaseColor.WHITE
-						};
-
-						//Adding checbox in signaturefield's page
-						stamper.AddAnnotation(checkbox.CheckField, positions[0].page);
-
-						found = true;
-						break;
-					}
+					found = true;
+					break;
 				}
-			}
-			catch (IOException e)
-			{
-				//Throwing exception to the caller
-				throw e;
 			}
 
 			return found;
@@ -305,31 +282,23 @@ namespace ElaborazionePdf
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
 
-			try
-			{
-				//Getting forms
-				AcroFields form = stamper.AcroFields;
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
 
-				//Analyzing every item
-				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			{
+				//Cheking if textfield
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
 				{
-					//Cheking if textfield
-					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
-					{
-						string name = form.GetTranslatedFieldName(kvp.Key);
+					string name = form.GetTranslatedFieldName(kvp.Key);
 
-						//Getting radiobutton values
-						string[] values = form.GetAppearanceStates(kvp.Key);
+					//Getting radiobutton values
+					string[] values = form.GetAppearanceStates(kvp.Key);
 
-						//Setting the first value
-						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
-					}
+					//Setting the first value
+					found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
 				}
-			}
-			catch (IOException e)
-			{
-				//Throwing exception to the caller
-				throw e;
 			}
 
 			return found;
@@ -345,32 +314,24 @@ namespace ElaborazionePdf
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
 
-			try
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 			{
-				//Getting forms
-				AcroFields form = stamper.AcroFields;
 
-				//Analyzing every item
-				foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+				//Cheking if textfield
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT)
 				{
-
-					//Cheking if textfield
-					if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT)
+					//Checking field name
+					if (form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))
 					{
-						//Checking field name
-						if (form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))
-						{
-							found = true;
-							form.SetField(fieldName, text);
-							break;
-						}
+						found = true;
+						form.SetField(fieldName, text);
+						break;
 					}
 				}
-			}
-			catch (IOException e)
-			{
-				//Throwing exception to the caller
-				throw e;
 			}
 
 			return found;
@@ -466,7 +427,7 @@ namespace ElaborazionePdf
 					while (option != 6);
 				}
 			}
-			catch (IOException e)
+			catch (Exception e)
 			{
 				Console.WriteLine(e);
 			}
