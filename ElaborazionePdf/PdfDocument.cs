@@ -1,15 +1,16 @@
 ﻿using System;
-using iTextSharp.text.pdf;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
-using System.Collections;
-using static iTextSharp.text.pdf.AcroFields;
 using iTextSharp.text;
-using System.Diagnostics;
+using iTextSharp.text.pdf;
+using static iTextSharp.text.pdf.AcroFields;
 
 namespace ElaborazionePdf
 {
+	//Logger delegate protorype
+	public delegate void LoggerFunction(string text);
+
 	public class PdfDocument : IDisposable
 	{
 		private string filename;						//Filename
@@ -19,9 +20,6 @@ namespace ElaborazionePdf
 		private MemoryStream memoryStream = null;
 		private bool stamperDisposed = false;			//Indicating if some resources has been disposed				
 		static LoggerFunction delegateFunction = null;	//Logger function delegate
-
-		//Logger delegate protorype
-		public delegate void LoggerFunction(string text);
 
 		/*!
 		Getters and setters
