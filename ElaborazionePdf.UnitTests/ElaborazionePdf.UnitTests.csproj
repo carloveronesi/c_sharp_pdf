@@ -64,9 +64,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ElaborazionePdf\ElaborazionePdf.csproj">
-      <Project>{83ab02b7-52c9-4fac-8f4a-f2d3f36787d2}</Project>
-      <Name>ElaborazionePdf</Name>
+    <ProjectReference Include="..\IDSign.PdfUtility\IDSign.PdfUtility.csproj">
+      <Project>{5ed2751b-40db-43f3-ab31-907e2a93c70c}</Project>
+      <Name>IDSign.PdfUtility</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

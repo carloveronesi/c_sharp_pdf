@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
+using IDSign.PdfUtility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ElaborazionePdf.UnitTests
 {
 	[TestClass]
-	public class PdfDocumentTests
+	public class PdfUtilityTests
 	{
 		private const string FILE_WITH_CHECKBOX = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf";
 		private const string FILE_WITH_SIGNATUREFIELD = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf";
@@ -19,15 +20,15 @@ namespace ElaborazionePdf.UnitTests
 		public void Constructor_FileExists_NoExceptions()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null)) { }
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null)) { }
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(IOException),"No Exception found: file exists (but should not)")]
+		[ExpectedException(typeof(IOException))]
 		public void Constructor_FileDoesntExist_ThrowsException()
 		{
 			//Arrange / Act
-			using (PdfDocument doc = new PdfDocument(@"TestFiles\filenonesistente.pdf", null)){ }
+			using (PdfUtility doc = new PdfUtility(@"TestFiles\filenonesistente.pdf", null)){ }
 		}
 
 		/*!
@@ -35,14 +36,26 @@ namespace ElaborazionePdf.UnitTests
 		 */
 
 		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void GetAcrofieldType_ArgumentNull_ArgumentNullException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			{
+				//Act
+				var type = doc.GetAcrofieldType(null);
+			}
+		}
+
+		[TestMethod]
 		public void GetAcrofieldType_FieldExists_ReturnsFieldType()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				var type = doc.GetAcrofieldType("Nome");
-				System.Diagnostics.Debug.WriteLine("Looking for acrofield named \"Nome\", type: " + type + " (" + PdfDocument.GetFormType(type) + ")");
+				System.Diagnostics.Debug.WriteLine("Looking for acrofield named \"Nome\", type: " + type + " (" + PdfUtility.GetFormType(type) + ")");
 
 				//Assert
 				Assert.IsTrue(type > -1);
@@ -50,28 +63,26 @@ namespace ElaborazionePdf.UnitTests
 		}
 
 		[TestMethod]
+		[ExpectedException(typeof(FieldNotFoundException))]
 		public void GetAcrofieldType_FieldDoesntExist_ReturnsMinusOne()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				var type = doc.GetAcrofieldType("Nomi");
-
-				//Assert
-				Assert.AreEqual(-1, type);
 			}
 		}
-
-		/*!
-		 Method 2 tests
-		 */
+		/*
+		/// <summary>
+		/// Method 2 tests
+		/// </summary>
 
 		[TestMethod]
 		public void FlagCheckbox_CheckboxExists_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				var result = doc.FlagCheckbox();
@@ -85,7 +96,7 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_TwoCheckableCheckboxes_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				//Flagging first checkbox
@@ -102,7 +113,7 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_TwoCheckableCheckboxesButTryingToCheckThree_ReturnsFalse()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				//Flagging first checkbox
@@ -121,7 +132,7 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_CheckboxDoesntExist_ReturnsFalse()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
 				var result = doc.FlagCheckbox();
@@ -131,15 +142,15 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
-		/*!
-		 Method 3 tests
-		 */
+		/// <summary>
+		///  Method 3 tests
+		/// </summary>
 
 		[TestMethod]
 		public void SubstituteSignature_SignatureExists_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
 				var result = doc.SubstituteSignature();
@@ -153,7 +164,7 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_TwoSignatureFields_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
 				//Flagging first checkbox
@@ -170,7 +181,7 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_TwoSignatureFieldsButTryingToSubstituteThree_ReturnsFalse()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_SIGNATUREFIELD, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
 				//Flagging first checkbox
@@ -189,7 +200,7 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_SignatureDoesntExist_ReturnsFalse()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				var result = doc.SubstituteSignature();
@@ -199,15 +210,16 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
-		/*!
-		 Method 4 tests
-		 */
+
+		/// <summary>
+		/// Method 4 tests
+		/// </summary>
 
 		[TestMethod]
 		public void SelectRadiobutton_RadiobuttonExists_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_RADIOBUTTON, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
 			{
 				//Act
 				var result = doc.SelectRadiobutton();
@@ -221,7 +233,7 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_RadiobuttonDoesntExist_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				var result = doc.SelectRadiobutton();
@@ -235,7 +247,7 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_SelectingTwiceRadiobutton_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_RADIOBUTTON, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
 			{
 				//Act
 				var result = doc.SelectRadiobutton();
@@ -246,15 +258,15 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
-		/*!
-		 Method 5 tests
-		 */
+		/// <summary>
+		/// Method 5 tests
+		/// </summary>
 
 		[TestMethod]
 		public void InsertTextInField_FieldExists_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				var result = doc.InsertTextInField("Nome", "Pippo");
@@ -268,7 +280,7 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_FieldDoesntExist_ReturnsFalse()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				var result = doc.InsertTextInField("Nomi", "Pippo");
@@ -282,7 +294,7 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_InsertingTextTwice_ReturnsTrue()
 		{
 			//Arrange
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 
@@ -296,9 +308,9 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
-		/*!
-		 Method 6 tests
-		 */
+		/// <summary>
+		///  Method 6 tests
+		/// </summary>
 
 		[TestMethod]
 		public void Save_DocumentUntouched_ReturnsTrue()
@@ -313,7 +325,7 @@ namespace ElaborazionePdf.UnitTests
 				File.Delete(filename_out);
 			}
 
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				doc.Save();
@@ -335,7 +347,7 @@ namespace ElaborazionePdf.UnitTests
 				File.Delete(filename_out);
 			}
 
-			using (PdfDocument doc = new PdfDocument(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Modifying file
 				doc.FlagCheckbox();
@@ -347,5 +359,6 @@ namespace ElaborazionePdf.UnitTests
 				Assert.IsTrue(File.Exists(filename_out));
 			}
 		}
+		*/
 	}
 }
