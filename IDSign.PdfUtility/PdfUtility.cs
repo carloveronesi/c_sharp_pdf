@@ -214,7 +214,7 @@ namespace IDSign.PdfUtility
 		///	METODO 2: Flaggare un acrofield di tipo checkbox
 		/// Looking for a checkbox and checking it
 		/// </summary>
-		/// <param name="fieldName"></param>
+		/// <param name="fieldName">string Name of the checkbox to check</param>
 		/// <returns>bool Operation result</returns>
 
 		public bool FlagCheckbox(string fieldName)
@@ -265,6 +265,7 @@ namespace IDSign.PdfUtility
 		/// METODO 3: Sostituire un acrofield di tipo signature con un acrofield di tipo checkbox
 		/// Locking for a checkbox and checking it
 		/// </summary>
+		/// <param name="fieldName">string Name of the signaturefield to substitute</param>
 		public void SubstituteSignature(string fieldName)
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
@@ -329,6 +330,8 @@ namespace IDSign.PdfUtility
 		/// METODO 4: Selezionare un acrofield di tipo radiobutton
 		/// Selecting a radiobutton acrofield
 		/// </summary>
+		/// <param name="fieldName">string Name of the radiobutton to select</param>
+		/// <param name="valueToSelect">string Value to select</param>
 		public void SelectRadiobutton(string fieldName, string valueToSelect)
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
@@ -364,6 +367,50 @@ namespace IDSign.PdfUtility
 
 						//Setting the value
 						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), valueToSelect);
+					}
+				}
+			}
+
+			if (!found)
+				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_RADIOBUTTON);
+		}
+
+		/// <summary>
+		///  METODO 5: Inserire un testo in un acrofield ti tipo testo
+		///  Inserting the given text into a textfield
+		/// </summary>
+		/// <param name="fieldName">string Name of the textfield to modify</param>
+		/// <param name="text">string Text to insert</param>
+		public void InsertTextInField(string fieldName, string text)
+		{
+			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
+
+			//Checking if argument is null
+			if (fieldName == null)
+				throw new ArgumentNullException("fieldName");
+			if (text == null)
+				throw new ArgumentNullException("valueToSelect");
+
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
+
+			//Checking if document has no fields
+			if (form.Fields.Count == 0)
+				throw new DocumentHasNoFieldsException(filename);
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			{
+
+				//Cheking if textfield
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT)
+				{
+					//Checking field name
+					if (form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))
+					{
+						found = true;
+						form.SetField(fieldName, text);
+						break;
 					}
 				}
 			}
