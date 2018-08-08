@@ -355,7 +355,7 @@ namespace IDSign.PdfUtility
 
 						//Checking if value to select exists
 						if (!values.Contains(valueToSelect))
-							throw new RadiobuttonValueNotFoundException(fieldName, valueToSelect, filename);
+							throw new RadiobuttonValueNotFoundException(fieldName, valueToSelect);
 
 						//Setting the value
 						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), valueToSelect);
