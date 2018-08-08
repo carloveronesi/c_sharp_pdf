@@ -332,6 +332,7 @@ namespace IDSign.PdfUtility
 		public void SelectRadiobutton(string fieldName)
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
+			string name;
 
 			//Checking if argument is null
 			if (fieldName == null)
@@ -350,13 +351,14 @@ namespace IDSign.PdfUtility
 				//Cheking if textfield
 				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
 				{
-					string name = form.GetTranslatedFieldName(kvp.Key);
+					if((name = form.GetTranslatedFieldName(kvp.Key)).Equals(fieldName))
+					{
+						//Getting radiobutton values
+						string[] values = form.GetAppearanceStates(kvp.Key);
 
-					//Getting radiobutton values
-					string[] values = form.GetAppearanceStates(kvp.Key);
-
-					//Setting the first value
-					found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
+						//Setting the first value
+						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
+					}
 				}
 			}
 

@@ -256,54 +256,72 @@ namespace ElaborazionePdf.UnitTests
 		}
 
 
-		/*
+
 		/// <summary>
 		/// Method 4 tests
 		/// </summary>
+		/// 
 
 		[TestMethod]
-		public void SelectRadiobutton_RadiobuttonExists_ReturnsTrue()
+		[ExpectedException(typeof(DocumentHasNoFieldsException))]
+		public void SelectRadiobutton_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
 			{
 				//Act
-				var result = doc.SelectRadiobutton();
-
-				//Assert
-				Assert.IsTrue(result);
+				doc.SelectRadiobutton("Signature1");
 			}
 		}
 
 		[TestMethod]
-		public void SelectRadiobutton_RadiobuttonDoesntExist_ReturnsTrue()
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void SelectRadiobutton_ArgumentNull_ArgumentNullException()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
-				var result = doc.SelectRadiobutton();
-
-				//Assert
-				Assert.IsFalse(result);
+				doc.SelectRadiobutton(null);
 			}
 		}
 
 		[TestMethod]
-		public void SelectRadiobutton_SelectingTwiceRadiobutton_ReturnsTrue()
+		public void SelectRadiobutton_RadiobuttonExists()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
 			{
 				//Act
-				var result = doc.SelectRadiobutton();
-				var result2 = doc.SelectRadiobutton();
-
-				//Assert
-				Assert.IsTrue(result && result2);
+				doc.SelectRadiobutton("language_gc");
 			}
 		}
 
+
+		[TestMethod]
+		[ExpectedException(typeof(FieldNotFoundException))]
+		public void SelectRadiobutton_RadiobuttonDoesntExist_FieldNotFoundException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			{
+				//Act
+				doc.SelectRadiobutton("Pluto");
+			}
+		}
+
+		[TestMethod]
+		public void SelectRadiobutton_SelectingTwiceRadiobutton()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			{
+				//Act
+				doc.SelectRadiobutton("language_gc");
+				doc.SelectRadiobutton("language_gc");
+			}
+		}
+/*
 		/// <summary>
 		/// Method 5 tests
 		/// </summary>
