@@ -7,7 +7,6 @@ using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using static iTextSharp.text.pdf.AcroFields;
-using System.Linq;
 
 namespace IDSign.PdfUtility
 {
@@ -204,6 +203,53 @@ namespace IDSign.PdfUtility
 				default:
 					return "?";
 			}
+		}
+
+		/// <summary>
+		///	METODO 2: Flaggare un acrofield di tipo checkbox
+		/// Looking for a checkbox and checking it
+		/// </summary>
+		/// <param name="fieldName"></param>
+		/// <returns>bool Operation result</returns>
+
+		public bool FlagCheckbox(string fieldName)
+		{
+			bool found = false;                                                             //Flag indicating if an unchecked checkbox has been found
+			string name;                                                                    //Field name
+
+			//Checking if argument is null
+			if (fieldName == null)
+				throw new ArgumentNullException();
+
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			{
+				//Looking checkbox with fieldname
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX && (name = form.GetTranslatedFieldName(kvp.Key)).Equals(fieldName))
+				{
+					//Getting checkbox's state values (Note: they change according to PDF's language)
+					//Note: values[0] is the unchecked value, values[1] is checked value
+					string[] values = form.GetAppearanceStates(name);
+
+					//If the box isn't checked, we check it
+					if (form.GetField(kvp.Key).Equals(values[0]) || form.GetField(kvp.Key).Length == 0)
+					{
+						//Changing state and returning true (in case of error it returns false)
+						found = form.SetField(name, values[1]);
+						break;
+					}
+				}
+			}
+
+			if (!found)
+			{
+				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_CHECKBOX);
+			}
+
+			return found;
 		}
 	}
 }

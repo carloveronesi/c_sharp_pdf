@@ -64,7 +64,7 @@ namespace ElaborazionePdf.UnitTests
 
 		[TestMethod]
 		[ExpectedException(typeof(FieldNotFoundException))]
-		public void GetAcrofieldType_FieldDoesntExist_ReturnsMinusOne()
+		public void GetAcrofieldType_FieldDoesntExist_FieldNotFoundException()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
@@ -73,7 +73,7 @@ namespace ElaborazionePdf.UnitTests
 				var type = doc.GetAcrofieldType("Nomi");
 			}
 		}
-		/*
+		
 		/// <summary>
 		/// Method 2 tests
 		/// </summary>
@@ -85,13 +85,13 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
-				var result = doc.FlagCheckbox();
+				var result = doc.FlagCheckbox("CheckBox1");
 
 				//Assert
 				Assert.IsTrue(result);
 			}
 		}
-
+		
 		[TestMethod]
 		public void FlagCheckbox_TwoCheckableCheckboxes_ReturnsTrue()
 		{
@@ -100,15 +100,15 @@ namespace ElaborazionePdf.UnitTests
 			{
 				//Act
 				//Flagging first checkbox
-				var result1 = doc.FlagCheckbox();
+				var result1 = doc.FlagCheckbox("CheckBox1");
 				//Flagging second
-				var result2 = doc.FlagCheckbox();
+				var result2 = doc.FlagCheckbox("CheckBox2");
 
 				//Assert
 				Assert.IsTrue(result1 && result2);
 			}
 		}
-
+		
 		[TestMethod]
 		public void FlagCheckbox_TwoCheckableCheckboxesButTryingToCheckThree_ReturnsFalse()
 		{
@@ -117,17 +117,17 @@ namespace ElaborazionePdf.UnitTests
 			{
 				//Act
 				//Flagging first checkbox
-				var result1 = doc.FlagCheckbox();
+				var result1 = doc.FlagCheckbox("CheckBox1");
 				//Flagging second
-				var result2 = doc.FlagCheckbox();
+				var result2 = doc.FlagCheckbox("CheckBox2");
 				//Flagging third
-				var result3 = doc.FlagCheckbox();
+				var result3 = doc.FlagCheckbox("CheckBox3");
 
 				//Assert
 				Assert.IsFalse(result1 && result2 && result3);
 			}
 		}
-
+		
 		[TestMethod]
 		public void FlagCheckbox_CheckboxDoesntExist_ReturnsFalse()
 		{
@@ -135,13 +135,30 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
-				var result = doc.FlagCheckbox();
+				var result = doc.FlagCheckbox("Pluto");
 
 				//Assert
 				Assert.IsFalse(result);
 			}
 		}
 
+		[TestMethod]
+		[ExpectedException(typeof(FieldNotFoundException))]
+		public void FlagCheckbox_CheckboxDoesntExist_FieldNotFoundException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
+			{
+				//Act
+				var result = doc.FlagCheckbox("Pluto");
+
+				//Assert
+				Assert.IsFalse(result);
+			}
+		}
+
+
+		/*
 		/// <summary>
 		///  Method 3 tests
 		/// </summary>

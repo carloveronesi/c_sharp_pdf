@@ -11,8 +11,10 @@ namespace IDSign.PdfUtility
 	{
 		public FieldNotFoundException()
 		{}
-		public FieldNotFoundException(string message) : base("Field not found: " + message)
+		public FieldNotFoundException(string name) : base("Field named \"" + name + "\" not found: ")
 		{}
+		public FieldNotFoundException(string name, int type) : base("Field of type \"" + PdfUtility.GetFormType(type) + "\" named \"" + name + "\" not found.")
+		{ }
 		public FieldNotFoundException(string message, Exception innerException)
 		: base("Field not found: " + message, innerException)
 		{}
