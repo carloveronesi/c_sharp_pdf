@@ -32,10 +32,9 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(@"TestFiles\filenonesistente.pdf", null)){ }
 		}
 
-		/*!
-		 Method 1 tests
-		 */
-
+		/// <summary>
+		/// Method 1 tests
+		/// </summary>
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void GetAcrofieldType_DocumentHasNoFields_DocumentHasNoFieldsException()
@@ -91,7 +90,6 @@ namespace ElaborazionePdf.UnitTests
 		/// Method 2 tests
 		/// </summary>
 
-
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void FlagCheckbox_DocumentHasNoFields_DocumentHasNoFieldsException()
@@ -100,7 +98,7 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
 			{
 				//Act
-				var result = doc.FlagCheckbox("Pluto");
+				doc.FlagCheckbox("Pluto");
 			}
 		}
 
@@ -112,38 +110,32 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
-				var type = doc.FlagCheckbox(null);
+				doc.FlagCheckbox(null);
 			}
 		}
 
 		[TestMethod]
-		public void FlagCheckbox_CheckboxExists_ReturnsTrue()
+		public void FlagCheckbox_CheckboxExists()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
-				var result = doc.FlagCheckbox("CheckBox1");
-
-				//Assert
-				Assert.IsTrue(result);
+				doc.FlagCheckbox("CheckBox1");
 			}
 		}
 		
 		[TestMethod]
-		public void FlagCheckbox_TwoCheckableCheckboxes_ReturnsTrue()
+		public void FlagCheckbox_TwoCheckableCheckboxes()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
 				//Flagging first checkbox
-				var result1 = doc.FlagCheckbox("CheckBox1");
+				doc.FlagCheckbox("CheckBox1");
 				//Flagging second
-				var result2 = doc.FlagCheckbox("CheckBox2");
-
-				//Assert
-				Assert.IsTrue(result1 && result2);
+				doc.FlagCheckbox("CheckBox2");
 			}
 		}
 		
@@ -156,9 +148,9 @@ namespace ElaborazionePdf.UnitTests
 			{
 				//Act
 				//Flagging first 
-				var result1 = doc.FlagCheckbox("CheckBox1");
+				doc.FlagCheckbox("CheckBox1");
 				//Flagging second
-				var result2 = doc.FlagCheckbox("CheckBox1");
+				doc.FlagCheckbox("CheckBox1");
 			}
 		}
 		
@@ -170,7 +162,7 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
-				var result = doc.FlagCheckbox("Pluto");
+				doc.FlagCheckbox("Pluto");
 			}
 		}
 
@@ -482,6 +474,5 @@ namespace ElaborazionePdf.UnitTests
 				doc.Save();
 			}
 		}
-	
 	}
 }

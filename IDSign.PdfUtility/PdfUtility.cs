@@ -1,13 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using static iTextSharp.text.pdf.AcroFields;
-using System.Collections;
 
 namespace IDSign.PdfUtility
 {
@@ -146,7 +144,7 @@ namespace IDSign.PdfUtility
 
 			//Checking if argument is null
 			if (fieldName == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(fieldName);
 
 			//Getting fields
 			AcroFields form = reader.AcroFields;
@@ -216,15 +214,14 @@ namespace IDSign.PdfUtility
 		/// </summary>
 		/// <param name="fieldName">string Name of the checkbox to check</param>
 		/// <returns>bool Operation result</returns>
-
-		public bool FlagCheckbox(string fieldName)
+		public void FlagCheckbox(string fieldName)
 		{
 			bool found = false;                                                             //Flag indicating if an unchecked checkbox has been found
 			string name;                                                                    //Field name
 
 			//Checking if argument is null
 			if (fieldName == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(fieldName);
 
 			//Getting forms
 			AcroFields form = stamper.AcroFields;
@@ -257,8 +254,6 @@ namespace IDSign.PdfUtility
 			{
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_CHECKBOX);
 			}
-
-			return found;
 		}
 
 		/// <summary>
@@ -275,7 +270,7 @@ namespace IDSign.PdfUtility
 
 			//Checking if argument is null
 			if (fieldName == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException(fieldName);
 
 			//Getting forms
 			AcroFields form = stamper.AcroFields;
@@ -419,7 +414,10 @@ namespace IDSign.PdfUtility
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_RADIOBUTTON);
 		}
 
-
+		/// <summary>
+		///  METODO 6.1: "Appiattimento" del pdf prima della scrittura su file
+		///  Flattening of the pdf before writing to file
+		/// </summary>
 		public void FlatteningDocument()
 		{
 			stamper.FormFlattening = true;
