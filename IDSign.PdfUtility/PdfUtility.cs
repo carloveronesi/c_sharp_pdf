@@ -431,9 +431,9 @@ namespace IDSign.PdfUtility
 		{
 			//Closing stamper
 			stamper.Dispose();
-
+			
 			//Flattening Document
-			FlatteningDocument();
+			//FlatteningDocument();
 
 			//Saving data
 			var data = memoryStream.ToArray();
