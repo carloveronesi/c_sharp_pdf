@@ -7,6 +7,7 @@ using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using static iTextSharp.text.pdf.AcroFields;
+using System.Collections;
 
 namespace IDSign.PdfUtility
 {
@@ -258,6 +259,71 @@ namespace IDSign.PdfUtility
 			}
 
 			return found;
+		}
+
+		/// <summary>
+		/// METODO 3: Sostituire un acrofield di tipo signature con un acrofield di tipo checkbox
+		/// Locking for a checkbox and checking it
+		/// </summary>
+		public void SubstituteSignature(string fieldName)
+		{
+			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
+			string key = null;
+			IList<FieldPosition> positions = null;
+
+			//Checking if argument is null
+			if (fieldName == null)
+				throw new ArgumentNullException();
+
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
+
+			//Checking if document has no fields
+			if (form.Fields.Count == 0)
+				throw new DocumentHasNoFieldsException(filename);
+
+			ArrayList arr = new ArrayList();
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			{
+				arr.Add(kvp.Key);
+
+				//Checking if the form is checkbox
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE)
+				{
+					//Getting field's key
+					key = kvp.Key;
+					//Getting field's name
+					var name = form.GetTranslatedFieldName(kvp.Key);
+					//Getting field's position(s)
+					positions = form.GetFieldPositions(name);
+
+					//Removing field
+					form.RemoveField(key);
+
+					//Creating new checkbox with signaturefield's coordinates
+					//Note: We're replacing the first occurrence
+					RadioCheckField checkbox = new RadioCheckField(stamper.Writer, positions[0].position, "i_was_a_signature_field", "Yes")
+					{
+						//Setting look
+						CheckType = RadioCheckField.TYPE_CHECK,
+						Checked = true,
+						BorderWidth = BaseField.BORDER_WIDTH_THIN,
+						BorderColor = BaseColor.BLACK,
+						BackgroundColor = BaseColor.WHITE
+					};
+
+					//Adding checbox in signaturefield's page
+					stamper.AddAnnotation(checkbox.CheckField, positions[0].page);
+
+					found = true;
+					break;
+				}
+			}
+
+			if (!found)
+				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_SIGNATURE);
 		}
 	}
 }

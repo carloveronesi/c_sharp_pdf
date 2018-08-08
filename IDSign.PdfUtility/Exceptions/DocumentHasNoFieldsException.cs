@@ -18,6 +18,6 @@ namespace IDSign.PdfUtility
 		{}
 		protected DocumentHasNoFieldsException(SerializationInfo info, StreamingContext ctxt)
 			: base(info, ctxt)
-		{ }
+		{}
 	}
 }

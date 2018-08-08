@@ -37,6 +37,18 @@ namespace ElaborazionePdf.UnitTests
 		 */
 
 		[TestMethod]
+		[ExpectedException(typeof(DocumentHasNoFieldsException))]
+		public void GetAcrofieldType_DocumentHasNoFields_DocumentHasNoFieldsException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			{
+				//Act
+				var type = doc.GetAcrofieldType("Nomi");
+			}
+		}
+
+		[TestMethod]
 		[ExpectedException(typeof(ArgumentNullException))]
 		public void GetAcrofieldType_ArgumentNull_ArgumentNullException()
 		{
@@ -75,21 +87,34 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
+		/// <summary>
+		/// Method 2 tests
+		/// </summary>
+
+
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
-		public void GetAcrofieldType_DocumentHasNoFields_DocumentHasNoFieldsException()
+		public void FlagCheckbox_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
 			{
 				//Act
-				var type = doc.GetAcrofieldType("Nomi");
+				var result = doc.FlagCheckbox("Pluto");
 			}
 		}
 
-		/// <summary>
-		/// Method 2 tests
-		/// </summary>
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void FlagCheckbox_ArgumentNull_ArgumentNullException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			{
+				//Act
+				var type = doc.FlagCheckbox(null);
+			}
+		}
 
 		[TestMethod]
 		public void FlagCheckbox_CheckboxExists_ReturnsTrue()
@@ -151,37 +176,58 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
-		[TestMethod]
-		[ExpectedException(typeof(DocumentHasNoFieldsException))]
-		public void FlagCheckbox_DocumentHasNoFields_DocumentHasNoFieldsException()
-		{
-			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
-			{
-				//Act
-				var result = doc.FlagCheckbox("Pluto");
-			}
-		}
-
-		/*
 		/// <summary>
 		///  Method 3 tests
 		/// </summary>
 
 		[TestMethod]
-		public void SubstituteSignature_SignatureExists_ReturnsTrue()
+		[ExpectedException(typeof(DocumentHasNoFieldsException))]
+		public void SubstituteSignature_DocumentHasNoFields_DocumentHasNoFieldsException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			{
+				//Act
+				doc.SubstituteSignature("Signature1");
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void SubstituteSignature_ArgumentNull_ArgumentNullException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			{
+				//Act
+				doc.SubstituteSignature(null);
+			}
+		}
+
+		[TestMethod]
+		public void SubstituteSignature_SignatureExists()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
-				var result = doc.SubstituteSignature();
-
-				//Assert
-				Assert.IsTrue(result);
+				doc.SubstituteSignature("Signature1");
 			}
 		}
 
+		[TestMethod]
+		[ExpectedException(typeof(FieldNotFoundException))]
+		public void SubstituteSignature_SignatureDoesntExist_FieldNotFoundException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			{
+				//Act
+				doc.SubstituteSignature("Pluto");
+			}
+		}
+
+		/*
 		[TestMethod]
 		public void SubstituteSignature_TwoSignatureFields_ReturnsTrue()
 		{
@@ -218,21 +264,9 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
-		[TestMethod]
-		public void SubstituteSignature_SignatureDoesntExist_ReturnsFalse()
-		{
-			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
-			{
-				//Act
-				var result = doc.SubstituteSignature();
-
-				//Assert
-				Assert.IsFalse(result);
-			}
-		}
 
 
+		/*
 		/// <summary>
 		/// Method 4 tests
 		/// </summary>
