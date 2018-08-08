@@ -126,10 +126,7 @@ namespace IDSign.PdfUtility
 		{
 			memoryStream = new MemoryStream();
 			reader = new PdfReader(filename);
-			stamper = new PdfStamper(reader, memoryStream)
-			{
-				FormFlattening = true
-			};
+			stamper = new PdfStamper(reader, memoryStream);
 		}
 
 		/// <summary>
@@ -415,15 +412,6 @@ namespace IDSign.PdfUtility
 		}
 
 		/// <summary>
-		///  METODO 6.1: "Appiattimento" del pdf prima della scrittura su file
-		///  Flattening of the pdf before writing to file
-		/// </summary>
-		public void FlatteningDocument()
-		{
-			stamper.FormFlattening = true;
-		}
-
-		/// <summary>
 		///  METODO 6: Ottenimento del pdf elaborato
 		///  Saving the working copy on file
 		/// </summary>
@@ -456,6 +444,15 @@ namespace IDSign.PdfUtility
 
 			//Notifying that stamper has been disposed
 			stamperDisposed = true;
+		}
+
+		/// <summary>
+		///  METODO 6.1: "Appiattimento" del pdf prima della scrittura su file
+		///  Flattening of the pdf before writing to file
+		/// </summary>
+		public void FlatteningDocument()
+		{
+			stamper.FormFlattening = true;
 		}
 	}
 }

@@ -105,9 +105,10 @@ namespace ElaborazionePdf
 			CloseProgram();
 		}
 
-		/*!
-		 Caller's Logger function
-		 */
+		/// <summary>
+		/// Caller's Logger function
+		/// </summary>
+		/// <param name="x"></param>
 		static void PrintLog(string x)
 		{
 			Console.WriteLine("----------Logger message----------");
@@ -115,9 +116,9 @@ namespace ElaborazionePdf
 			Console.WriteLine("----------------------------------");
 		}
 
-		/*!
-		 Press any key to exit...
-		 */
+		/// <summary>
+		///  Press any key to exit...
+		/// </summary>
 		private static void CloseProgram()
 		{
 			Console.WriteLine("\n\nPress any key to exit...");
