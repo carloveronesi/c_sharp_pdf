@@ -268,8 +268,9 @@ namespace IDSign.PdfUtility
 		public void SubstituteSignature(string fieldName)
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			string key = null;
-			IList<FieldPosition> positions = null;
+			string key = null;													//Field's key
+			IList<FieldPosition> positions = null;                              //Field's positions						
+			string name;
 
 			//Checking if argument is null
 			if (fieldName == null)
@@ -290,12 +291,10 @@ namespace IDSign.PdfUtility
 				arr.Add(kvp.Key);
 
 				//Checking if the form is checkbox
-				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE)
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE && (name = form.GetTranslatedFieldName(kvp.Key)).Equals(fieldName))
 				{
 					//Getting field's key
 					key = kvp.Key;
-					//Getting field's name
-					var name = form.GetTranslatedFieldName(kvp.Key);
 					//Getting field's position(s)
 					positions = form.GetFieldPositions(name);
 
@@ -325,5 +324,46 @@ namespace IDSign.PdfUtility
 			if (!found)
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_SIGNATURE);
 		}
+
+		/// <summary>
+		/// METODO 4: Selezionare un acrofield di tipo radiobutton
+		/// Selecting a radiobutton acrofield
+		/// </summary>
+		public void SelectRadiobutton(string fieldName)
+		{
+			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
+
+			//Checking if argument is null
+			if (fieldName == null)
+				throw new ArgumentNullException();
+
+			//Getting forms
+			AcroFields form = stamper.AcroFields;
+
+			//Checking if document has no fields
+			if (form.Fields.Count == 0)
+				throw new DocumentHasNoFieldsException(filename);
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			{
+				//Cheking if textfield
+				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
+				{
+					string name = form.GetTranslatedFieldName(kvp.Key);
+
+					//Getting radiobutton values
+					string[] values = form.GetAppearanceStates(kvp.Key);
+
+					//Setting the first value
+					found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
+				}
+			}
+
+			if (!found)
+				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_RADIOBUTTON);
+		}
 	}
+
+
 }

@@ -149,18 +149,16 @@ namespace ElaborazionePdf.UnitTests
 		
 		[TestMethod]
 		[ExpectedException(typeof(FieldNotFoundException))]
-		public void FlagCheckbox_TwoCheckableCheckboxesButTryingToCheckThree_ReturnsFalse()
+		public void FlagCheckbox_CheckingTwice_FieldNotFoundException()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
-				//Flagging first checkbox
+				//Flagging first 
 				var result1 = doc.FlagCheckbox("CheckBox1");
 				//Flagging second
-				var result2 = doc.FlagCheckbox("CheckBox2");
-				//Flagging third
-				var result3 = doc.FlagCheckbox("CheckBox3");
+				var result2 = doc.FlagCheckbox("CheckBox1");
 			}
 		}
 		
@@ -227,43 +225,35 @@ namespace ElaborazionePdf.UnitTests
 			}
 		}
 
-		/*
+		
 		[TestMethod]
-		public void SubstituteSignature_TwoSignatureFields_ReturnsTrue()
+		public void SubstituteSignature_TwoSignatureFields()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
 				//Flagging first checkbox
-				var result1 = doc.SubstituteSignature();
+				doc.SubstituteSignature("Signature1");
 				//Flagging second
-				var result2 = doc.SubstituteSignature();
-
-				//Assert
-				Assert.IsTrue(result1 && result2);
+				doc.SubstituteSignature("Signature2");
 			}
 		}
 
 		[TestMethod]
-		public void SubstituteSignature_TwoSignatureFieldsButTryingToSubstituteThree_ReturnsFalse()
+		[ExpectedException(typeof(FieldNotFoundException))]
+		public void SubstituteSignature_SubstituteTwice_FieldNotFoundException()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
 			{
 				//Act
 				//Flagging first checkbox
-				var result1 = doc.SubstituteSignature();
+				doc.SubstituteSignature("Signature1");
 				//Flagging second
-				var result2 = doc.SubstituteSignature();
-				//Flagging third
-				var result3 = doc.SubstituteSignature();
-
-				//Assert
-				Assert.IsFalse(result1 && result2 && result3);
+				doc.SubstituteSignature("Signature1");
 			}
 		}
-
 
 
 		/*

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElaborazionePdf", "Elaboraz
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ElaborazionePdf.UnitTests", "ElaborazionePdf.UnitTests\ElaborazionePdf.UnitTests.csproj", "{FCA4D7A5-41CA-4949-AB07-A1F9A1D78ED6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IDSign.PdfUtility", "IDSign.PdfUtility\IDSign.PdfUtility.csproj", "{5ED2751B-40DB-43F3-AB31-907E2A93C70C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FCA4D7A5-41CA-4949-AB07-A1F9A1D78ED6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCA4D7A5-41CA-4949-AB07-A1F9A1D78ED6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCA4D7A5-41CA-4949-AB07-A1F9A1D78ED6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ED2751B-40DB-43F3-AB31-907E2A93C70C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ED2751B-40DB-43F3-AB31-907E2A93C70C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ED2751B-40DB-43F3-AB31-907E2A93C70C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ED2751B-40DB-43F3-AB31-907E2A93C70C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

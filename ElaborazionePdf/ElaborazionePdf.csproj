@@ -52,5 +52,11 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\IDSign.PdfUtility\IDSign.PdfUtility.csproj">
+      <Project>{5ed2751b-40db-43f3-ab31-907e2a93c70c}</Project>
+      <Name>IDSign.PdfUtility</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
