@@ -434,13 +434,13 @@ namespace ElaborazionePdf.UnitTests
 				doc.InsertTextInField("Nome", "Pippo2");
 			}
 		}
-		/*
+		
 		/// <summary>
 		///  Method 6 tests
 		/// </summary>
 
 		[TestMethod]
-		public void Save_DocumentUntouched_ReturnsTrue()
+		public void Save_DocumentUntouched()
 		{
 			//Arrange
 
@@ -456,13 +456,11 @@ namespace ElaborazionePdf.UnitTests
 			{
 				//Act
 				doc.Save();
-
-				Assert.IsTrue(File.Exists(filename_out));
 			}
 		}
 
 		[TestMethod]
-		public void Save_DocumentTouched_ReturnsTrue()
+		public void Save_DocumentTouched()
 		{
 			//Arrange
 
@@ -477,15 +475,13 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Modifying file
-				doc.FlagCheckbox();
+				doc.FlagCheckbox("CheckBox1");
 				doc.InsertTextInField("Nome", "Pippo");
 
 				//Act
 				doc.Save();
-
-				Assert.IsTrue(File.Exists(filename_out));
 			}
 		}
-		*/
+	
 	}
 }

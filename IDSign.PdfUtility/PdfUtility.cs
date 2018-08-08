@@ -418,7 +418,46 @@ namespace IDSign.PdfUtility
 			if (!found)
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_RADIOBUTTON);
 		}
+
+
+		public void FlatteningDocument()
+		{
+			stamper.FormFlattening = true;
+		}
+
+		/// <summary>
+		///  METODO 6: Ottenimento del pdf elaborato
+		///  Saving the working copy on file
+		/// </summary>
+		public void Save()
+		{
+			//Closing stamper
+			stamper.Dispose();
+
+			//Flattening Document
+			FlatteningDocument();
+
+			//Saving data
+			var data = memoryStream.ToArray();
+
+			using (var fs = new FileStream(filename_out, FileMode.Create, FileAccess.Write))
+			{
+				fs.Write(data, 0, data.Length);
+			}
+
+			////Saving data
+			//var data = memoryStream.ToArray();
+
+			////Saving on file
+			//using (PdfReader dataReader = new PdfReader(data))
+			//using (PdfStamper filestamper = new PdfStamper(dataReader, new FileStream(Filename_out, FileMode.Create)))
+			//{
+			//	//Setting Flattening
+			//	filestamper.FormFlattening = true;
+			//}
+
+			//Notifying that stamper has been disposed
+			stamperDisposed = true;
+		}
 	}
-
-
 }
