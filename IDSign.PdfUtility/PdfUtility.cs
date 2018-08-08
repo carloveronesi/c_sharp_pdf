@@ -7,6 +7,7 @@ using System.IO;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using static iTextSharp.text.pdf.AcroFields;
+using System.Linq;
 
 namespace IDSign.PdfUtility
 {
@@ -23,9 +24,11 @@ namespace IDSign.PdfUtility
 		private bool stamperDisposed = false;           //Indicating if some resources has been disposed				
 		static LoggerFunction delegateFunction = null;  //Logger function delegate
 
-		/*!
-		 Constructor
-		 */
+		/// <summary>
+		/// Constructor
+		/// </summary>
+		/// <param name="filename">string Name of the file to opens</param>
+		/// <param name="funct">Logger function</param>
 		public PdfUtility(string filename, LoggerFunction funct)
 		{
 			//Delegating logger
@@ -38,15 +41,25 @@ namespace IDSign.PdfUtility
 			LoadFile();
 		}
 
-		/*!
-		Getters and setters
-		*/
+		/// <summary>
+		/// Getters and setters
+		/// </summary>
 		public string Filename { get => filename; set => filename = value; }
 		public string Filename_out { get => filename_out; set => filename_out = value; }
 
-		/*!
-		 Implementing Dispose()
-		 */
+		/// <summary>
+		/// Logger
+		/// </summary>
+		/// <param name="msg">string Message to display</param>
+		private static void Log(string msg)
+		{
+			//Calling delegate logger function if exists
+			delegateFunction?.Invoke(msg);
+		}
+
+		/// <summary>
+		///  Implementing Dispose()
+		/// </summary>
 		#region IDisposable Members
 		~PdfUtility()
 		{
@@ -108,9 +121,9 @@ namespace IDSign.PdfUtility
 		}
 		#endregion
 
-		/*!
-		 Loading the input file into memory
-		 */
+		/// <summary>
+		/// Loading the input file into memory
+		/// </summary>
 		private void LoadFile()
 		{
 			memoryStream = new MemoryStream();
@@ -119,6 +132,78 @@ namespace IDSign.PdfUtility
 			{
 				FormFlattening = true
 			};
+		}
+
+		/// <summary>
+		/// METODO 1: ricerca di un acrofield generico per name, 
+		/// l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton).
+		/// </summary>
+		/// <param name="fieldName">Field name</param>
+		/// <returns>Field name</returns>
+		public int GetAcrofieldType(string fieldName)
+		{
+			int type;                                               //Type of field
+
+			//Checking if argument is null
+			if (fieldName == null)
+				throw new ArgumentNullException();
+
+			//Getting fields
+			AcroFields form = reader.AcroFields;
+
+			//Analyzing every item
+			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
+			{
+				//Cheking if Field type is checkbox or textbox or signaturefield or radiobutton
+				switch (type = form.GetFieldType(kvp.Key))
+				{
+					case AcroFields.FIELD_TYPE_CHECKBOX:
+					case AcroFields.FIELD_TYPE_RADIOBUTTON:
+					case AcroFields.FIELD_TYPE_SIGNATURE:
+					case AcroFields.FIELD_TYPE_TEXT:
+						//Reading field name
+						string translatedFileName = form.GetTranslatedFieldName(kvp.Key);
+
+						//Comparing filed name with the given name
+						if (translatedFileName.Equals(fieldName))
+							return type;
+						break;
+				}
+			}
+
+			//If field not found, throw an exception
+			throw new FieldNotFoundException(fieldName);
+		}
+
+		/// <summary>
+		/// METODO 1.1 (aggiuntivo): Ritorna in formato "human readable" il tipo di field passato per parametro
+		/// l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton)
+		/// </summary>
+		/// <param name="num">int Field type</param>
+		/// <returns>string	Field type (human readable)</returns>
+		public static string GetFormType(int num)
+		{
+			switch (num)
+			{
+				case AcroFields.FIELD_TYPE_CHECKBOX:
+					return "Checkbox";
+				case AcroFields.FIELD_TYPE_COMBO:
+					return "Combobox";
+				case AcroFields.FIELD_TYPE_LIST:
+					return "List";
+				case AcroFields.FIELD_TYPE_NONE:
+					return "None";
+				case AcroFields.FIELD_TYPE_PUSHBUTTON:
+					return "Pushbutton";
+				case AcroFields.FIELD_TYPE_RADIOBUTTON:
+					return "Radiobutton";
+				case AcroFields.FIELD_TYPE_SIGNATURE:
+					return "Signature";
+				case AcroFields.FIELD_TYPE_TEXT:
+					return "Text";
+				default:
+					return "?";
+			}
 		}
 	}
 }
