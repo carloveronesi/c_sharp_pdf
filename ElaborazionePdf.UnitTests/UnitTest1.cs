@@ -11,6 +11,7 @@ namespace ElaborazionePdf.UnitTests
 		private const string FILE_WITH_CHECKBOX = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf";
 		private const string FILE_WITH_SIGNATUREFIELD = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf";
 		private const string FILE_WITH_RADIOBUTTON = @"TestFiles\test_radiobutton.pdf";
+		private const string FILE_WITH_NO_FIELDS = @"TestFiles\No_fields.pdf";
 		
 		/*!
 		 Constructor tests
@@ -73,7 +74,19 @@ namespace ElaborazionePdf.UnitTests
 				var type = doc.GetAcrofieldType("Nomi");
 			}
 		}
-		
+
+		[TestMethod]
+		[ExpectedException(typeof(DocumentHasNoFieldsException))]
+		public void GetAcrofieldType_DocumentHasNoFields_DocumentHasNoFieldsException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			{
+				//Act
+				var type = doc.GetAcrofieldType("Nomi");
+			}
+		}
+
 		/// <summary>
 		/// Method 2 tests
 		/// </summary>
@@ -110,6 +123,7 @@ namespace ElaborazionePdf.UnitTests
 		}
 		
 		[TestMethod]
+		[ExpectedException(typeof(FieldNotFoundException))]
 		public void FlagCheckbox_TwoCheckableCheckboxesButTryingToCheckThree_ReturnsFalse()
 		{
 			//Arrange
@@ -122,26 +136,9 @@ namespace ElaborazionePdf.UnitTests
 				var result2 = doc.FlagCheckbox("CheckBox2");
 				//Flagging third
 				var result3 = doc.FlagCheckbox("CheckBox3");
-
-				//Assert
-				Assert.IsFalse(result1 && result2 && result3);
 			}
 		}
 		
-		[TestMethod]
-		public void FlagCheckbox_CheckboxDoesntExist_ReturnsFalse()
-		{
-			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
-			{
-				//Act
-				var result = doc.FlagCheckbox("Pluto");
-
-				//Assert
-				Assert.IsFalse(result);
-			}
-		}
-
 		[TestMethod]
 		[ExpectedException(typeof(FieldNotFoundException))]
 		public void FlagCheckbox_CheckboxDoesntExist_FieldNotFoundException()
@@ -151,12 +148,20 @@ namespace ElaborazionePdf.UnitTests
 			{
 				//Act
 				var result = doc.FlagCheckbox("Pluto");
-
-				//Assert
-				Assert.IsFalse(result);
 			}
 		}
 
+		[TestMethod]
+		[ExpectedException(typeof(DocumentHasNoFieldsException))]
+		public void FlagCheckbox_DocumentHasNoFields_DocumentHasNoFieldsException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			{
+				//Act
+				var result = doc.FlagCheckbox("Pluto");
+			}
+		}
 
 		/*
 		/// <summary>

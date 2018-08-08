@@ -150,6 +150,10 @@ namespace IDSign.PdfUtility
 			//Getting fields
 			AcroFields form = reader.AcroFields;
 
+			//Checking if document has no fields
+			if (form.Fields.Count == 0)
+				throw new DocumentHasNoFieldsException(filename);
+
 			//Analyzing every item
 			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 			{
@@ -223,6 +227,10 @@ namespace IDSign.PdfUtility
 
 			//Getting forms
 			AcroFields form = stamper.AcroFields;
+
+			//Checking if document has no fields
+			if (form.Fields.Count == 0)
+				throw new DocumentHasNoFieldsException(filename);
 
 			//Analyzing every item
 			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)

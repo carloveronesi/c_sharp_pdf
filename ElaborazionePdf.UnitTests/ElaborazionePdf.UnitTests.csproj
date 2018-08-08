@@ -53,6 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="TestFiles\No_fields.pdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="TestFiles\Richiesta di adesione e Condizioni relative all%27uso della firma elettronica avanzata_checkbox.pdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

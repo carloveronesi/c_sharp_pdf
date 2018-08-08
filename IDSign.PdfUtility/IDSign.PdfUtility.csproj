@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\DocumentHasNoFieldsException.cs" />
     <Compile Include="Exceptions\FieldNotFoundException.cs" />
     <Compile Include="PdfUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

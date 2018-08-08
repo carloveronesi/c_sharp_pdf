@@ -11,12 +11,12 @@ namespace IDSign.PdfUtility
 	{
 		public FieldNotFoundException()
 		{}
-		public FieldNotFoundException(string name) : base("Field named \"" + name + "\" not found: ")
+		public FieldNotFoundException(string name) : base("Field named \"" + name + "\" not found.")
 		{}
 		public FieldNotFoundException(string name, int type) : base("Field of type \"" + PdfUtility.GetFormType(type) + "\" named \"" + name + "\" not found.")
 		{ }
-		public FieldNotFoundException(string message, Exception innerException)
-		: base("Field not found: " + message, innerException)
+		public FieldNotFoundException(string name, Exception innerException)
+		: base("Field named \"" + name + "\" not found.", innerException)
 		{}
 		protected FieldNotFoundException(SerializationInfo info, StreamingContext ctxt)
 			: base(info, ctxt)
