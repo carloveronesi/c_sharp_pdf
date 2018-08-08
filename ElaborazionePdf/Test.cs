@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
 using IDSign.PdfUtility;
-using iTextSharp.text;
-using iTextSharp.text.pdf;
-using static iTextSharp.text.pdf.AcroFields;
 
 namespace ElaborazionePdf
 {
