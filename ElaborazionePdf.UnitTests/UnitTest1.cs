@@ -270,19 +270,31 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
 			{
 				//Act
-				doc.SelectRadiobutton("Signature1");
+				doc.SelectRadiobutton("Signature1", "English");
 			}
 		}
 
 		[TestMethod]
 		[ExpectedException(typeof(ArgumentNullException))]
-		public void SelectRadiobutton_ArgumentNull_ArgumentNullException()
+		public void SelectRadiobutton_FieldArgumentNull_ArgumentNullException()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
 				//Act
-				doc.SelectRadiobutton(null);
+				doc.SelectRadiobutton(null, "English");
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(ArgumentNullException))]
+		public void SelectRadiobutton_ValueArgumentNull_ArgumentNullException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			{
+				//Act
+				doc.SelectRadiobutton("Signature1", null);
 			}
 		}
 
@@ -293,10 +305,9 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
 			{
 				//Act
-				doc.SelectRadiobutton("language_gc");
+				doc.SelectRadiobutton("language_gc", "English");
 			}
 		}
-
 
 		[TestMethod]
 		[ExpectedException(typeof(FieldNotFoundException))]
@@ -306,7 +317,19 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
 			{
 				//Act
-				doc.SelectRadiobutton("Pluto");
+				doc.SelectRadiobutton("Pluto", "English");
+			}
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(RadiobuttonValueNotFoundException))]
+		public void SelectRadiobutton_ValueToSelectDoesntExist_FieldNotFoundException()
+		{
+			//Arrange
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			{
+				//Act
+				doc.SelectRadiobutton("language_gc", "Pluto");
 			}
 		}
 
@@ -317,112 +340,124 @@ namespace ElaborazionePdf.UnitTests
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
 			{
 				//Act
-				doc.SelectRadiobutton("language_gc");
-				doc.SelectRadiobutton("language_gc");
-			}
-		}
-/*
-		/// <summary>
-		/// Method 5 tests
-		/// </summary>
-
-		[TestMethod]
-		public void InsertTextInField_FieldExists_ReturnsTrue()
-		{
-			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
-			{
-				//Act
-				var result = doc.InsertTextInField("Nome", "Pippo");
-
-				//Assert
-				Assert.IsTrue(result);
+				doc.SelectRadiobutton("language_gc", "English");
+				doc.SelectRadiobutton("language_gc", "English");
 			}
 		}
 
 		[TestMethod]
-		public void InsertTextInField_FieldDoesntExist_ReturnsFalse()
+		public void SelectRadiobutton_SelectingTwiceRadiobuttonAssigningDifferentValues()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
 			{
 				//Act
-				var result = doc.InsertTextInField("Nomi", "Pippo");
-
-				//Assert
-				Assert.IsFalse(result);
+				doc.SelectRadiobutton("language_gc", "English");
+				doc.SelectRadiobutton("language_gc", "Spanish");
 			}
 		}
+		/*
+				/// <summary>
+				/// Method 5 tests
+				/// </summary>
 
-		[TestMethod]
-		public void InsertTextInField_InsertingTextTwice_ReturnsTrue()
-		{
-			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
-			{
-				//Act
+				[TestMethod]
+				public void InsertTextInField_FieldExists_ReturnsTrue()
+				{
+					//Arrange
+					using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+					{
+						//Act
+						var result = doc.InsertTextInField("Nome", "Pippo");
 
-				//Inserting first time
-				var result = doc.InsertTextInField("Nome", "Pippo");
-				//Inserting second time
-				result = doc.InsertTextInField("Nome", "Pippo2");
+						//Assert
+						Assert.IsTrue(result);
+					}
+				}
 
-				//Assert
-				Assert.IsTrue(result);
-			}
-		}
+				[TestMethod]
+				public void InsertTextInField_FieldDoesntExist_ReturnsFalse()
+				{
+					//Arrange
+					using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+					{
+						//Act
+						var result = doc.InsertTextInField("Nomi", "Pippo");
 
-		/// <summary>
-		///  Method 6 tests
-		/// </summary>
+						//Assert
+						Assert.IsFalse(result);
+					}
+				}
 
-		[TestMethod]
-		public void Save_DocumentUntouched_ReturnsTrue()
-		{
-			//Arrange
+				[TestMethod]
+				public void InsertTextInField_InsertingTextTwice_ReturnsTrue()
+				{
+					//Arrange
+					using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+					{
+						//Act
 
-			//Generating output file name (filename + _modified.pdf)
-			var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
-			//Checking if output file exists, in case we delete it
-			if (File.Exists(filename_out))
-			{
-				File.Delete(filename_out);
-			}
+						//Inserting first time
+						var result = doc.InsertTextInField("Nome", "Pippo");
+						//Inserting second time
+						result = doc.InsertTextInField("Nome", "Pippo2");
 
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
-			{
-				//Act
-				doc.Save();
+						//Assert
+						Assert.IsTrue(result);
+					}
+				}
 
-				Assert.IsTrue(File.Exists(filename_out));
-			}
-		}
+				/// <summary>
+				///  Method 6 tests
+				/// </summary>
 
-		[TestMethod]
-		public void Save_DocumentTouched_ReturnsTrue()
-		{
-			//Arrange
+				[TestMethod]
+				public void Save_DocumentUntouched_ReturnsTrue()
+				{
+					//Arrange
 
-			//Generating output file name (filename + _modified.pdf)
-			var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
-			//Checking if output file exists, in case we delete it
-			if (File.Exists(filename_out))
-			{
-				File.Delete(filename_out);
-			}
+					//Generating output file name (filename + _modified.pdf)
+					var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
+					//Checking if output file exists, in case we delete it
+					if (File.Exists(filename_out))
+					{
+						File.Delete(filename_out);
+					}
 
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
-			{
-				//Modifying file
-				doc.FlagCheckbox();
-				doc.InsertTextInField("Nome", "Pippo");
+					using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+					{
+						//Act
+						doc.Save();
 
-				//Act
-				doc.Save();
+						Assert.IsTrue(File.Exists(filename_out));
+					}
+				}
 
-				Assert.IsTrue(File.Exists(filename_out));
-			}
-		}
-		*/
+				[TestMethod]
+				public void Save_DocumentTouched_ReturnsTrue()
+				{
+					//Arrange
+
+					//Generating output file name (filename + _modified.pdf)
+					var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
+					//Checking if output file exists, in case we delete it
+					if (File.Exists(filename_out))
+					{
+						File.Delete(filename_out);
+					}
+
+					using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+					{
+						//Modifying file
+						doc.FlagCheckbox();
+						doc.InsertTextInField("Nome", "Pippo");
+
+						//Act
+						doc.Save();
+
+						Assert.IsTrue(File.Exists(filename_out));
+					}
+				}
+				*/
 	}
 }

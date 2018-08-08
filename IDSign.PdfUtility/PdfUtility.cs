@@ -329,14 +329,16 @@ namespace IDSign.PdfUtility
 		/// METODO 4: Selezionare un acrofield di tipo radiobutton
 		/// Selecting a radiobutton acrofield
 		/// </summary>
-		public void SelectRadiobutton(string fieldName)
+		public void SelectRadiobutton(string fieldName, string valueToSelect)
 		{
 			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
 			string name;
 
 			//Checking if argument is null
 			if (fieldName == null)
-				throw new ArgumentNullException();
+				throw new ArgumentNullException("fieldName");
+			if (valueToSelect == null)
+				throw new ArgumentNullException("valueToSelect");
 
 			//Getting forms
 			AcroFields form = stamper.AcroFields;
@@ -356,8 +358,12 @@ namespace IDSign.PdfUtility
 						//Getting radiobutton values
 						string[] values = form.GetAppearanceStates(kvp.Key);
 
-						//Setting the first value
-						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), values[0]);
+						//Checking if value to select exists
+						if (!values.Contains(valueToSelect))
+							throw new RadiobuttonValueNotFoundException(fieldName, valueToSelect, filename);
+
+						//Setting the value
+						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), valueToSelect);
 					}
 				}
 			}
