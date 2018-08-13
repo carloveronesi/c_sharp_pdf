@@ -21,7 +21,9 @@ namespace ElaborazionePdf
 						option = Int32.Parse(Console.ReadLine());
 					}
 					catch (FormatException)
-					{ }
+					{
+						Console.WriteLine("\nWrong command");
+					}
 
 					try
 					{
@@ -75,9 +77,6 @@ namespace ElaborazionePdf
 								p.FlatteningDocument();
 								break;
 							case 8:
-								break;
-							default:
-								Console.WriteLine("Wrong command");
 								break;
 						}
 					}
