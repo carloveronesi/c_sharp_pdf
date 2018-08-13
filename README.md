@@ -9,6 +9,7 @@ Sviluppare una classe che dato in input (costruttore) un pdf esponga i seguenti 
 4. Metodo: per selezionare un acrofield di tipo radiobutton
 5. Metodo: per inserire un testo in un acrofield di tipo testo
 6. Metodo: per ottenere il pdf elaborato
+6. Metodo: appiattimento del documento
 
 ## Note
 * Per l’elaborazione del pdf fai riferimento alla libreria Itextsharp
