@@ -14,8 +14,6 @@ namespace IDSign.PdfUtility
 
 	public class PdfUtility : IDisposable
 	{
-		private string filename;                        //Filename
-		private string filename_out;                    //Filename for the modified file
 		private PdfStamper stamper = null;
 		private PdfReader reader = null;
 		private MemoryStream memoryStream = null;
@@ -25,29 +23,20 @@ namespace IDSign.PdfUtility
 		/// <summary>
 		/// Constructor
 		/// </summary>
-		/// <param name="filename">string Name of the file to opens</param>
 		/// <param name="funct">Logger function</param>
-		public PdfUtility(byte[] data, string filename, LoggerFunction funct)
+		public PdfUtility(byte[] data, LoggerFunction funct)
 		{
+			if (data.Length == 0)
+				throw new IOException();
+
 			//Delegating logger
 			delegateFunction = funct;
-			//Saving filename
-			this.filename = filename;
-			//Generating output file name (filename + _modified.pdf)
-			Filename_out = filename.Substring(0, filename.Length - 4) + "_modified.pdf";
 
-			memoryStream = new MemoryStream(data);
+			//Loading file
+			memoryStream = new MemoryStream();
 			reader = new PdfReader(data);
 			stamper = new PdfStamper(reader, memoryStream);
-			//Loading file
-			//LoadFile();
 		}
-
-		/// <summary>
-		/// Getters and setters
-		/// </summary>
-		public string Filename { get => filename; set => filename = value; }
-		public string Filename_out { get => filename_out; set => filename_out = value; }
 
 		/// <summary>
 		/// Logger
@@ -124,16 +113,6 @@ namespace IDSign.PdfUtility
 		#endregion
 
 		/// <summary>
-		/// Loading the input file into memory
-		/// </summary>
-		private void LoadFile()
-		{
-			memoryStream = new MemoryStream();
-			reader = new PdfReader(filename);
-			stamper = new PdfStamper(reader, memoryStream);
-		}
-
-		/// <summary>
 		/// METODO 1: ricerca di un acrofield generico per name, 
 		/// l’oggetto ritornato deve indicare il tipo di acrofield(checkbox, textbox, signaturefield, radiobutton).
 		/// </summary>
@@ -152,7 +131,7 @@ namespace IDSign.PdfUtility
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
 			{
-				throw new DocumentHasNoFieldsException(filename);
+				throw new DocumentHasNoFieldsException();
 			}
 
 			//Looking for a checkbox/radiobutton/signature/text withe the given name
@@ -226,7 +205,7 @@ namespace IDSign.PdfUtility
 
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
-				throw new DocumentHasNoFieldsException(filename);
+				throw new DocumentHasNoFieldsException();
 
 			//Looking for a checkbox with the given name
 			var result = form.Fields
@@ -273,7 +252,7 @@ namespace IDSign.PdfUtility
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
 			{
-				throw new DocumentHasNoFieldsException(filename);
+				throw new DocumentHasNoFieldsException();
 			}
 
 			//Looking for a signatureBox with the given name
@@ -335,7 +314,7 @@ namespace IDSign.PdfUtility
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
 			{
-				throw new DocumentHasNoFieldsException(filename);
+				throw new DocumentHasNoFieldsException();
 			}
 
 			//Looking for a radiobutton with the given name
@@ -386,7 +365,7 @@ namespace IDSign.PdfUtility
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
 			{
-				throw new DocumentHasNoFieldsException(filename);
+				throw new DocumentHasNoFieldsException();
 			}
 
 			//Looking for a text-field with the given name
@@ -412,35 +391,18 @@ namespace IDSign.PdfUtility
 		///  METODO 6: Ottenimento del pdf elaborato
 		///  Saving the working copy on file
 		/// </summary>
-		public void Save()
+		public byte[] Save()
 		{
 			//Closing stamper
 			stamper.Dispose();
-			
-			//Flattening Document
-			//FlatteningDocument();
 
 			//Saving data
 			var data = memoryStream.ToArray();
 
-			using (var fs = new FileStream(filename_out, FileMode.Create, FileAccess.Write))
-			{
-				fs.Write(data, 0, data.Length);
-			}
-
-			////Saving data
-			//var data = memoryStream.ToArray();
-
-			////Saving on file
-			//using (PdfReader dataReader = new PdfReader(data))
-			//using (PdfStamper filestamper = new PdfStamper(dataReader, new FileStream(Filename_out, FileMode.Create)))
-			//{
-			//	//Setting Flattening
-			//	filestamper.FormFlattening = true;
-			//}
-
 			//Notifying that stamper has been disposed
 			stamperDisposed = true;
+
+			return data;
 		}
 
 		/// <summary>

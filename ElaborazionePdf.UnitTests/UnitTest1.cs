@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using IDSign.PdfUtility;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -18,15 +19,18 @@ namespace ElaborazionePdf.UnitTests
 		public void Constructor_FileExists_NoExceptions()
 		{
 			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
-			using (PdfUtility doc = new PdfUtility(file, FILE_WITH_NO_FIELDS, null));
+			PdfUtility doc = new PdfUtility(file, null);
+
+			//Disposing the element
+			doc.Dispose();
 		}
 
 		[TestMethod]
 		[ExpectedException(typeof(IOException))]
 		public void Constructor_FileDoesntExist_ThrowsException()
 		{
-			//Arrange / Act
-			using (PdfUtility doc = new PdfUtility(@"TestFiles\filenonesistente.pdf", null)){ }
+			byte[] file = new byte[0];
+			using (PdfUtility doc = new PdfUtility(file, null)){ }
 		}
 		#endregion
 
@@ -35,9 +39,9 @@ namespace ElaborazionePdf.UnitTests
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void GetAcrofieldType_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
-			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(file, FILE_WITH_NO_FIELDS, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				var type = doc.GetAcrofieldType("Nomi");
@@ -49,7 +53,8 @@ namespace ElaborazionePdf.UnitTests
 		public void GetAcrofieldType_ArgumentNull_ArgumentNullException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				var type = doc.GetAcrofieldType(null);
@@ -60,7 +65,8 @@ namespace ElaborazionePdf.UnitTests
 		public void GetAcrofieldType_FieldExists_ReturnsFieldType()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				var type = doc.GetAcrofieldType("Nome");
@@ -76,7 +82,8 @@ namespace ElaborazionePdf.UnitTests
 		public void GetAcrofieldType_FieldDoesntExist_FieldNotFoundException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				var type = doc.GetAcrofieldType("Nomi");
@@ -90,7 +97,8 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.FlagCheckbox("Pluto");
@@ -102,7 +110,8 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_ArgumentNull_ArgumentNullException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.FlagCheckbox(null);
@@ -113,7 +122,8 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_CheckboxExists()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.FlagCheckbox("CheckBox1");
@@ -124,7 +134,8 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_TwoCheckableCheckboxes()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				//Flagging first checkbox
@@ -138,7 +149,8 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_CheckingTwice()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Flagging first 
 				doc.FlagCheckbox("CheckBox1");
@@ -152,7 +164,8 @@ namespace ElaborazionePdf.UnitTests
 		public void FlagCheckbox_CheckboxDoesntExist_FieldNotFoundException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.FlagCheckbox("Pluto");
@@ -166,7 +179,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SubstituteSignature("Signature1");
@@ -178,7 +192,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_ArgumentNull_ArgumentNullException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SubstituteSignature(null);
@@ -189,7 +204,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_SignatureExists()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_SIGNATUREFIELD);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SubstituteSignature("Signature1");
@@ -201,18 +217,20 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_SignatureDoesntExist_FieldNotFoundException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SubstituteSignature("Pluto");
 			}
 		}
-		
+
 		[TestMethod]
 		public void SubstituteSignature_TwoSignatureFields()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_SIGNATUREFIELD);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				//Flagging first checkbox
@@ -227,7 +245,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SubstituteSignature_SubstituteTwice_FieldNotFoundException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_SIGNATUREFIELD, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_SIGNATUREFIELD);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				//Flagging first checkbox
@@ -244,7 +263,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton("Signature1", "English");
@@ -256,7 +276,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_FieldArgumentNull_ArgumentNullException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton(null, "English");
@@ -268,7 +289,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_ValueArgumentNull_ArgumentNullException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton("Signature1", null);
@@ -279,7 +301,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_RadiobuttonExists()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_RADIOBUTTON);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton("language_gc", "English");
@@ -291,7 +314,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_RadiobuttonDoesntExist_FieldNotFoundException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_RADIOBUTTON);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton("Pluto", "English");
@@ -303,7 +327,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_ValueToSelectDoesntExist_FieldNotFoundException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_RADIOBUTTON);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton("language_gc", "Pluto");
@@ -314,7 +339,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_SelectingTwiceRadiobutton()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_RADIOBUTTON);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton("language_gc", "English");
@@ -326,7 +352,8 @@ namespace ElaborazionePdf.UnitTests
 		public void SelectRadiobutton_SelectingTwiceRadiobuttonAssigningDifferentValues()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_RADIOBUTTON, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_RADIOBUTTON);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.SelectRadiobutton("language_gc", "English");
@@ -342,7 +369,8 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.InsertTextInField("Nome", "Pippo");
@@ -354,7 +382,8 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_FieldArgumentNull_ArgumentNullException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.InsertTextInField(null, "Pippo");
@@ -366,7 +395,8 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_TextArgumentNull_ArgumentNullException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.InsertTextInField("Nome", null);
@@ -377,7 +407,8 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_FieldExists()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.InsertTextInField("Nome", "Pippo");
@@ -389,18 +420,20 @@ namespace ElaborazionePdf.UnitTests
 		public void InsertTextInField_FieldDoesntExist_FieldNotFoundException()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 				doc.InsertTextInField("Nomi", "Pippo");
 			}
 		}
-		
+
 		[TestMethod]
 		public void InsertTextInField_InsertingTextTwice()
 		{
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
 
@@ -417,19 +450,20 @@ namespace ElaborazionePdf.UnitTests
 		public void Save_DocumentUntouched()
 		{
 			//Arrange
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
 
-			//Generating output file name (filename + _modified.pdf)
-			var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
-			//Checking if output file exists, in case we delete it
-			if (File.Exists(filename_out))
-			{
-				File.Delete(filename_out);
-			}
-
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Act
-				doc.Save();
+				var file_out = doc.Save();
+
+				using (var fs = new FileStream(@"TestFiles\prova.pdf", FileMode.Create, FileAccess.Write))
+				{
+					fs.Write(file_out, 0, file_out.Length);
+				}
+
+				//checking if the given file isn't null
+				Assert.IsTrue(file_out != null);
 			}
 		}
 
@@ -437,23 +471,19 @@ namespace ElaborazionePdf.UnitTests
 		public void Save_DocumentTouched()
 		{
 			//Arrange
+			byte[] file = File.ReadAllBytes(FILE_WITH_CHECKBOX);
 
-			//Generating output file name (filename + _modified.pdf)
-			var filename_out = FILE_WITH_CHECKBOX.Substring(0, FILE_WITH_CHECKBOX.Length - 4) + "_modified.pdf";
-			//Checking if output file exists, in case we delete it
-			if (File.Exists(filename_out))
-			{
-				File.Delete(filename_out);
-			}
-
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
+			using (PdfUtility doc = new PdfUtility(file, null))
 			{
 				//Modifying file
 				doc.FlagCheckbox("CheckBox1");
 				doc.InsertTextInField("Nome", "Pippo");
 
 				//Act
-				doc.Save();
+				var file_out = doc.Save();
+
+				//checking if the given file isn't null
+				Assert.IsTrue(file_out != null);
 			}
 		}
 		#endregion

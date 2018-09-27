@@ -5,8 +5,8 @@ namespace IDSign.PdfUtility
 {
 	public class DocumentHasNoFieldsException : Exception
 	{
-		public DocumentHasNoFieldsException()
-		{}
+		public DocumentHasNoFieldsException() : base("An opened Document has no fields.")
+		{ }
 		public DocumentHasNoFieldsException(string documentName) : base("Document named \"" + documentName + "\" has no fields.")
 		{}
 		public DocumentHasNoFieldsException(string documentName, Exception innerException)

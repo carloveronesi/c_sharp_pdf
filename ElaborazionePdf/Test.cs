@@ -6,15 +6,16 @@ namespace ElaborazionePdf
 {
 	public class Test
 	{
+		private const string FILENAME = @"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf";
 		static void Main(string[] args)
 		{
 			int option = 0;
 			string name;
 			string value;
 
-			byte [] file = File.ReadAllBytes(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf"); ;
+			byte [] file = File.ReadAllBytes(FILENAME);
 
-			using (PdfUtility p = new PdfUtility(file, @"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf", PrintLog))
+			using (PdfUtility p = new PdfUtility(file, PrintLog))
 			{
 				do
 				{
@@ -73,8 +74,14 @@ namespace ElaborazionePdf
 								Console.WriteLine("Text inserted successfully!");
 								break;
 							case 6:
-								p.Save();
-								Console.WriteLine("File \"" + p.Filename_out + "\" saved successfully!");
+								var data = p.Save();
+								var filename_out = getModifiedFilename(FILENAME);
+								using (var fs = new FileStream(filename_out, FileMode.Create, FileAccess.Write))
+								{
+									fs.Write(data, 0, data.Length);
+								}
+
+								Console.WriteLine("File \"" + filename_out + "\" saved successfully!");
 								break;
 							case 7:
 								p.FlatteningDocument();
@@ -99,6 +106,16 @@ namespace ElaborazionePdf
 				while (option < 6 || option == 7 || option > 8);
 			}
 			CloseProgram();
+		}
+
+		/// <summary>
+		/// Creating modified filename
+		/// Adds "_modified" to the given filename
+		/// </summary>
+		/// <param name="filename">Filename</param>
+		static string getModifiedFilename(string filename)
+		{
+			return filename.Substring(0, filename.Length - 4) + "_modified.pdf";
 		}
 
 		/// <summary>
