@@ -27,7 +27,7 @@ namespace IDSign.PdfUtility
 		/// </summary>
 		/// <param name="filename">string Name of the file to opens</param>
 		/// <param name="funct">Logger function</param>
-		public PdfUtility(string filename, LoggerFunction funct)
+		public PdfUtility(byte[] data, string filename, LoggerFunction funct)
 		{
 			//Delegating logger
 			delegateFunction = funct;
@@ -35,8 +35,12 @@ namespace IDSign.PdfUtility
 			this.filename = filename;
 			//Generating output file name (filename + _modified.pdf)
 			Filename_out = filename.Substring(0, filename.Length - 4) + "_modified.pdf";
+
+			memoryStream = new MemoryStream(data);
+			reader = new PdfReader(data);
+			stamper = new PdfStamper(reader, memoryStream);
 			//Loading file
-			LoadFile();
+			//LoadFile();
 		}
 
 		/// <summary>

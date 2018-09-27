@@ -17,8 +17,8 @@ namespace ElaborazionePdf.UnitTests
 		[TestMethod]
 		public void Constructor_FileExists_NoExceptions()
 		{
-			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null)) { }
+			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
+			using (PdfUtility doc = new PdfUtility(file, FILE_WITH_NO_FIELDS, null));
 		}
 
 		[TestMethod]
@@ -35,8 +35,9 @@ namespace ElaborazionePdf.UnitTests
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void GetAcrofieldType_DocumentHasNoFields_DocumentHasNoFieldsException()
 		{
+			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
 			//Arrange
-			using (PdfUtility doc = new PdfUtility(FILE_WITH_NO_FIELDS, null))
+			using (PdfUtility doc = new PdfUtility(file, FILE_WITH_NO_FIELDS, null))
 			{
 				//Act
 				var type = doc.GetAcrofieldType("Nomi");

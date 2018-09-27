@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using IDSign.PdfUtility;
 
 namespace ElaborazionePdf
@@ -11,7 +12,9 @@ namespace ElaborazionePdf
 			string name;
 			string value;
 
-			using (PdfUtility p = new PdfUtility(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf", PrintLog))
+			byte [] file = File.ReadAllBytes(@"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf"); ;
+
+			using (PdfUtility p = new PdfUtility(file, @"C:\Users\c.veronesi\source\repos\ElaborazionePdf\ElaborazionePdf.UnitTests\TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf", PrintLog))
 			{
 				do
 				{
