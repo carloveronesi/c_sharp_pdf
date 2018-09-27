@@ -225,19 +225,28 @@ namespace IDSign.PdfUtility
 				throw new DocumentHasNoFieldsException(filename);
 
 			//Looking for a checkbox with the given name
-			var result = form.Fields.Where(kvp => form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX && form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))?.FirstOrDefault();
+			var result = form.Fields
+				.Where(kvp => 
+					form.GetTranslatedFieldName(kvp.Key).Equals(fieldName) &&
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX
+					)
+				.Select(kvp => 
+					new {
+						kvp.Key,
+						Name = form.GetTranslatedFieldName(kvp.Key),
+						Values = form.GetAppearanceStates(form.GetTranslatedFieldName(kvp.Key))
+					})
+				?.FirstOrDefault();
 
-			if (result.Value.Key == null || result.Value.Value == null)
+			//Checking if the query had results
+			if (result == null)
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_CHECKBOX);
 
-			string name = form.GetTranslatedFieldName(result.Value.Key);
-			string[] values = form.GetAppearanceStates(name);
-
 			//If the box isn't checked, we check it
-			if (form.GetField(result.Value.Key).Equals(values[0]) || form.GetField(result.Value.Key).Length == 0)
+			if (form.GetField(result.Key).Equals(result.Values[0]) || form.GetField(result.Key).Length == 0)
 			{
 				//Changing state and returning true (in case of error it returns false)
-				form.SetField(name, values[1]);
+				form.SetField(result.Name, result.Values[1]);
 			}
 		}
 
@@ -272,8 +281,8 @@ namespace IDSign.PdfUtility
 				.Select(kvp => new { kvp.Key, Position = form.GetFieldPositions(kvp.Key) })
 				?.FirstOrDefault();
 
-			//Checking if field not found
-			if(result == null)
+			//Checking if the query had results
+			if (result == null)
 			{
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_SIGNATURE);
 			}
@@ -333,8 +342,8 @@ namespace IDSign.PdfUtility
 				.Select(kvp => new { kvp.Key, States = form.GetAppearanceStates(kvp.Key) })
 				?.FirstOrDefault();
 
-			//Checking if no fields had satisfied the query
-			if(result == null)
+			//Checking if the query had results
+			if (result == null)
 			{
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_RADIOBUTTON);
 			}
