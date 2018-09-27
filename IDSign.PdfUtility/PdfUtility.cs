@@ -137,8 +137,6 @@ namespace IDSign.PdfUtility
 		/// <returns>Field name</returns>
 		public int GetAcrofieldType(string fieldName)
 		{
-			int type;                                               //Type of field
-
 			//Checking if argument is null
 			if (fieldName == null)
 				throw new ArgumentNullException(fieldName);
@@ -150,28 +148,20 @@ namespace IDSign.PdfUtility
 			if (form.Fields.Count == 0)
 				throw new DocumentHasNoFieldsException(filename);
 
-			//Analyzing every item
-			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
-			{
-				//Cheking if Field type is checkbox or textbox or signaturefield or radiobutton
-				switch (type = form.GetFieldType(kvp.Key))
-				{
-					case AcroFields.FIELD_TYPE_CHECKBOX:
-					case AcroFields.FIELD_TYPE_RADIOBUTTON:
-					case AcroFields.FIELD_TYPE_SIGNATURE:
-					case AcroFields.FIELD_TYPE_TEXT:
-						//Reading field name
-						string translatedFileName = form.GetTranslatedFieldName(kvp.Key);
+			var result = form.Fields.Where(kvp => 
+				(form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX ||
+				form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON ||
+				form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE ||
+				form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT
+				)&& 
+				form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
+				).Select(kvp =>  form.GetFieldType(kvp.Key))?.FirstOrDefault();
 
-						//Comparing filed name with the given name
-						if (translatedFileName.Equals(fieldName))
-							return type;
-						break;
-				}
-			}
+			//If field not found (default is 0), throw an exception
+			if (result == 0)
+				throw new FieldNotFoundException(fieldName);
 
-			//If field not found, throw an exception
-			throw new FieldNotFoundException(fieldName);
+			return (int)result;
 		}
 
 		/// <summary>
