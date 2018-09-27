@@ -366,40 +366,42 @@ namespace IDSign.PdfUtility
 		/// <param name="text">string Text to insert</param>
 		public void InsertTextInField(string fieldName, string text)
 		{
-			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-
 			//Checking if argument is null
 			if (fieldName == null)
+			{
 				throw new ArgumentNullException("fieldName");
+			}
 			if (text == null)
+			{
 				throw new ArgumentNullException("valueToSelect");
+			}
 
 			//Getting forms
 			AcroFields form = stamper.AcroFields;
 
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
-				throw new DocumentHasNoFieldsException(filename);
-
-			//Analyzing every item
-			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 			{
-
-				//Cheking if textfield
-				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT)
-				{
-					//Checking field name
-					if (form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))
-					{
-						found = true;
-						form.SetField(fieldName, text);
-						break;
-					}
-				}
+				throw new DocumentHasNoFieldsException(filename);
 			}
 
-			if (!found)
+			//Looking for a text-field with the given name
+			var result = form.Fields
+				.Where(kvp =>
+					form.GetTranslatedFieldName(kvp.Key).Equals(fieldName) &&
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT
+				)
+				.Select(kvp => form.GetTranslatedFieldName(kvp.Key))
+				?.FirstOrDefault();
+
+			//Checking if the query had results
+			if (result == null)
+			{
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_RADIOBUTTON);
+			}
+
+			//Setting the given text
+			form.SetField(fieldName, text);
 		}
 
 		/// <summary>
