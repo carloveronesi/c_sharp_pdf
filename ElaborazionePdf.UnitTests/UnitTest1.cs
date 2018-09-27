@@ -9,6 +9,7 @@ namespace ElaborazionePdf.UnitTests
 	[TestClass]
 	public class PdfUtilityTests
 	{
+		private const string FILE_NO_PDF = @"TestFiles\Immagine.jpg";
 		private const string FILE_WITH_CHECKBOX = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_checkbox.pdf";
 		private const string FILE_WITH_SIGNATUREFIELD = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf";
 		private const string FILE_WITH_RADIOBUTTON = @"TestFiles\test_radiobutton.pdf";
@@ -19,6 +20,17 @@ namespace ElaborazionePdf.UnitTests
 		public void Constructor_FileExists_NoExceptions()
 		{
 			byte[] file = File.ReadAllBytes(FILE_WITH_NO_FIELDS);
+			PdfUtility doc = new PdfUtility(file, null);
+
+			//Disposing the element
+			doc.Dispose();
+		}
+
+		[TestMethod]
+		[ExpectedException(typeof(FileNotFoundException))]
+		public void Constructor_FileWithWrongFormat_FileNotFoundException()
+		{
+			byte[] file = File.ReadAllBytes(FILE_NO_PDF);
 			PdfUtility doc = new PdfUtility(file, null);
 
 			//Disposing the element

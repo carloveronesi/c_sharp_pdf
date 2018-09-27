@@ -26,16 +26,22 @@ namespace IDSign.PdfUtility
 		/// <param name="funct">Logger function</param>
 		public PdfUtility(byte[] data, LoggerFunction funct)
 		{
-			if (data.Length == 0)
-				throw new IOException();
+			try
+			{
+				if (data.Length == 0)
+					throw new IOException();
 
-			//Delegating logger
-			delegateFunction = funct;
+				//Delegating logger
+				delegateFunction = funct;
 
-			//Loading file
-			memoryStream = new MemoryStream();
-			reader = new PdfReader(data);
-			stamper = new PdfStamper(reader, memoryStream);
+				//Loading file
+				memoryStream = new MemoryStream();
+				reader = new PdfReader(data);
+				stamper = new PdfStamper(reader, memoryStream);
+			}catch(iTextSharp.text.exceptions.InvalidPdfException)
+			{
+				throw new FileNotFoundException("The given file isn't in pdf format.");
+			}
 		}
 
 		/// <summary>
