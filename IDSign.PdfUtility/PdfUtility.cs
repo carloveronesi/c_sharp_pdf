@@ -148,14 +148,17 @@ namespace IDSign.PdfUtility
 			if (form.Fields.Count == 0)
 				throw new DocumentHasNoFieldsException(filename);
 
-			var result = form.Fields.Where(kvp => 
-				(form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX ||
-				form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON ||
-				form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE ||
-				form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT
-				)&& 
-				form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
-				).Select(kvp =>  form.GetFieldType(kvp.Key))?.FirstOrDefault();
+			var result = form.Fields
+				.Where(kvp => 
+					(
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX ||
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON ||
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE ||
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT
+					)&& 
+					form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
+				)
+				.Select(kvp =>  form.GetFieldType(kvp.Key))?.FirstOrDefault();
 
 			//If field not found (default is 0), throw an exception
 			if (result == 0)
