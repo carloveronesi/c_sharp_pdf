@@ -138,15 +138,18 @@ namespace IDSign.PdfUtility
 		public int GetAcrofieldType(string fieldName)
 		{
 			//Checking if argument is null
-			if (fieldName == null)
+			if (fieldName == null) { 
 				throw new ArgumentNullException(fieldName);
+			}
 
 			//Getting fields
 			AcroFields form = reader.AcroFields;
 
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
+			{
 				throw new DocumentHasNoFieldsException(filename);
+			}
 
 			var result = form.Fields
 				.Where(kvp => 
@@ -155,15 +158,17 @@ namespace IDSign.PdfUtility
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON ||
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE ||
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT
-					)&& 
-					form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
+					)
+					&& form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
 				)
 				.Select(kvp =>  form.GetFieldType(kvp.Key))?.FirstOrDefault();
 
 			//If field not found (default is 0), throw an exception
 			if (result == 0)
+			{
 				throw new FieldNotFoundException(fieldName);
-
+			}
+				
 			return (int)result;
 		}
 
@@ -241,62 +246,51 @@ namespace IDSign.PdfUtility
 		/// <param name="fieldName">string Name of the signaturefield to substitute</param>
 		public void SubstituteSignature(string fieldName)
 		{
-			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			string key = null;													//Field's key
-			IList<FieldPosition> positions = null;                              //Field's positions						
-			string name;
-
 			//Checking if argument is null
 			if (fieldName == null)
+			{
 				throw new ArgumentNullException(fieldName);
+			}
 
-			//Getting forms
-			AcroFields form = stamper.AcroFields;
+			//Getting fields
+			AcroFields form = reader.AcroFields;
 
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
-				throw new DocumentHasNoFieldsException(filename);
-
-			ArrayList arr = new ArrayList();
-
-			//Analyzing every item
-			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 			{
-				arr.Add(kvp.Key);
-
-				//Checking if the form is checkbox
-				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE && (name = form.GetTranslatedFieldName(kvp.Key)).Equals(fieldName))
-				{
-					//Getting field's key
-					key = kvp.Key;
-					//Getting field's position(s)
-					positions = form.GetFieldPositions(name);
-
-					//Removing field
-					form.RemoveField(key);
-
-					//Creating new checkbox with signaturefield's coordinates
-					//Note: We're replacing the first occurrence
-					RadioCheckField checkbox = new RadioCheckField(stamper.Writer, positions[0].position, "i_was_a_signature_field", "Yes")
-					{
-						//Setting look
-						CheckType = RadioCheckField.TYPE_CHECK,
-						Checked = true,
-						BorderWidth = BaseField.BORDER_WIDTH_THIN,
-						BorderColor = BaseColor.BLACK,
-						BackgroundColor = BaseColor.WHITE
-					};
-
-					//Adding checbox in signaturefield's page
-					stamper.AddAnnotation(checkbox.CheckField, positions[0].page);
-
-					found = true;
-					break;
-				}
+				throw new DocumentHasNoFieldsException(filename);
 			}
 
-			if (!found)
+			var result = form.Fields
+				.Where(kvp => 
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE
+					&& form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
+				)
+				.Select(kvp => new { kvp.Key, Position = form.GetFieldPositions(kvp.Key) })?.FirstOrDefault();
+
+			//Checking if field not found
+			if(result == null)
+			{
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_SIGNATURE);
+			}
+
+			//Removing field
+			form.RemoveField(result.Key);
+
+			//Creating new checkbox with signaturefield's coordinates
+			//Note: We're replacing the first occurrence
+			RadioCheckField checkbox = new RadioCheckField(stamper.Writer, result.Position[0].position, "i_was_a_signature_field", "Yes")
+			{
+				//Setting look
+				CheckType = RadioCheckField.TYPE_CHECK,
+				Checked = true,
+				BorderWidth = BaseField.BORDER_WIDTH_THIN,
+				BorderColor = BaseColor.BLACK,
+				BackgroundColor = BaseColor.WHITE
+			};
+
+			//Adding checbox in signaturefield's page
+			stamper.AddAnnotation(checkbox.CheckField, result.Position[0].page);
 		}
 
 		/// <summary>
