@@ -151,15 +151,16 @@ namespace IDSign.PdfUtility
 				throw new DocumentHasNoFieldsException(filename);
 			}
 
+			//Looking for a checkbox/radiobutton/signature/text withe the given name
 			var result = form.Fields
-				.Where(kvp => 
+				.Where(kvp =>
+					form.GetTranslatedFieldName(kvp.Key).Equals(fieldName) &&
 					(
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX ||
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON ||
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE ||
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_TEXT
 					)
-					&& form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
 				)
 				.Select(kvp =>  form.GetFieldType(kvp.Key))?.FirstOrDefault();
 
@@ -168,7 +169,8 @@ namespace IDSign.PdfUtility
 			{
 				throw new FieldNotFoundException(fieldName);
 			}
-				
+			
+			//Returning the field's type
 			return (int)result;
 		}
 
@@ -261,12 +263,14 @@ namespace IDSign.PdfUtility
 				throw new DocumentHasNoFieldsException(filename);
 			}
 
+			//Looking for a signatureBox with the given name
 			var result = form.Fields
 				.Where(kvp => 
+					form.GetTranslatedFieldName(kvp.Key).Equals(fieldName) &&
 					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_SIGNATURE
-					&& form.GetTranslatedFieldName(kvp.Key).Equals(fieldName)
 				)
-				.Select(kvp => new { kvp.Key, Position = form.GetFieldPositions(kvp.Key) })?.FirstOrDefault();
+				.Select(kvp => new { kvp.Key, Position = form.GetFieldPositions(kvp.Key) })
+				?.FirstOrDefault();
 
 			//Checking if field not found
 			if(result == null)
@@ -301,45 +305,48 @@ namespace IDSign.PdfUtility
 		/// <param name="valueToSelect">string Value to select</param>
 		public void SelectRadiobutton(string fieldName, string valueToSelect)
 		{
-			bool found = false;                                                 //Flag indicating if an unchecked checkbox has been found
-			string name;
-
 			//Checking if argument is null
 			if (fieldName == null)
+			{
 				throw new ArgumentNullException("fieldName");
+			}
+
 			if (valueToSelect == null)
+			{
 				throw new ArgumentNullException("valueToSelect");
+			}
 
 			//Getting forms
 			AcroFields form = stamper.AcroFields;
 
 			//Checking if document has no fields
 			if (form.Fields.Count == 0)
-				throw new DocumentHasNoFieldsException(filename);
-
-			//Analyzing every item
-			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
 			{
-				//Cheking if textfield
-				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
-				{
-					if((name = form.GetTranslatedFieldName(kvp.Key)).Equals(fieldName))
-					{
-						//Getting radiobutton values
-						string[] values = form.GetAppearanceStates(kvp.Key);
-
-						//Checking if value to select exists
-						if (!values.Contains(valueToSelect))
-							throw new RadiobuttonValueNotFoundException(fieldName, valueToSelect);
-
-						//Setting the value
-						found = form.SetField(form.GetTranslatedFieldName(kvp.Key), valueToSelect);
-					}
-				}
+				throw new DocumentHasNoFieldsException(filename);
 			}
 
-			if (!found)
+			//Looking for a radiobutton with the given name
+			var result = form.Fields
+				.Where(kvp => 
+					form.GetTranslatedFieldName(kvp.Key).Equals(fieldName) &&
+					form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_RADIOBUTTON)
+				.Select(kvp => new { kvp.Key, States = form.GetAppearanceStates(kvp.Key) })
+				?.FirstOrDefault();
+
+			//Checking if no fields had satisfied the query
+			if(result == null)
+			{
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_RADIOBUTTON);
+			}
+
+			//Checking if value to select exists
+			if (!result.States.Contains(valueToSelect))
+			{
+				throw new RadiobuttonValueNotFoundException(fieldName, valueToSelect);
+			}
+
+			//Setting the value
+			form.SetField(form.GetTranslatedFieldName(result.Key), valueToSelect);
 		}
 
 		/// <summary>
