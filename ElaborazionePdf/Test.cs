@@ -101,7 +101,7 @@ namespace ElaborazionePdf
 		/// <summary>
 		/// Caller's Logger function
 		/// </summary>
-		/// <param name="x"></param>
+		/// <param name="x">Message to print</param>
 		static void PrintLog(string x)
 		{
 			Console.WriteLine("----------Logger message----------");

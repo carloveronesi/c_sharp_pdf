@@ -12,11 +12,8 @@ namespace ElaborazionePdf.UnitTests
 		private const string FILE_WITH_SIGNATUREFIELD = @"TestFiles\Richiesta di adesione e Condizioni relative all'uso della firma elettronica avanzata_signaturefield.pdf";
 		private const string FILE_WITH_RADIOBUTTON = @"TestFiles\test_radiobutton.pdf";
 		private const string FILE_WITH_NO_FIELDS = @"TestFiles\No_fields.pdf";
-		
-		/*!
-		 Constructor tests
-		 */
 
+		#region Constructor tests
 		[TestMethod]
 		public void Constructor_FileExists_NoExceptions()
 		{
@@ -31,10 +28,9 @@ namespace ElaborazionePdf.UnitTests
 			//Arrange / Act
 			using (PdfUtility doc = new PdfUtility(@"TestFiles\filenonesistente.pdf", null)){ }
 		}
+		#endregion
 
-		/// <summary>
-		/// Method 1 tests
-		/// </summary>
+		#region Method 1 tests
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void GetAcrofieldType_DocumentHasNoFields_DocumentHasNoFieldsException()
@@ -85,11 +81,9 @@ namespace ElaborazionePdf.UnitTests
 				var type = doc.GetAcrofieldType("Nomi");
 			}
 		}
+		#endregion
 
-		/// <summary>
-		/// Method 2 tests
-		/// </summary>
-
+		#region Method 2 tests
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void FlagCheckbox_DocumentHasNoFields_DocumentHasNoFieldsException()
@@ -140,13 +134,11 @@ namespace ElaborazionePdf.UnitTests
 		}
 		
 		[TestMethod]
-		[ExpectedException(typeof(FieldNotFoundException))]
-		public void FlagCheckbox_CheckingTwice_FieldNotFoundException()
+		public void FlagCheckbox_CheckingTwice()
 		{
 			//Arrange
 			using (PdfUtility doc = new PdfUtility(FILE_WITH_CHECKBOX, null))
 			{
-				//Act
 				//Flagging first 
 				doc.FlagCheckbox("CheckBox1");
 				//Flagging second
@@ -165,11 +157,9 @@ namespace ElaborazionePdf.UnitTests
 				doc.FlagCheckbox("Pluto");
 			}
 		}
+		#endregion
 
-		/// <summary>
-		///  Method 3 tests
-		/// </summary>
-
+		#region Method 3 tests
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void SubstituteSignature_DocumentHasNoFields_DocumentHasNoFieldsException()
@@ -216,7 +206,6 @@ namespace ElaborazionePdf.UnitTests
 				doc.SubstituteSignature("Pluto");
 			}
 		}
-
 		
 		[TestMethod]
 		public void SubstituteSignature_TwoSignatureFields()
@@ -246,14 +235,9 @@ namespace ElaborazionePdf.UnitTests
 				doc.SubstituteSignature("Signature1");
 			}
 		}
+		#endregion
 
-
-
-		/// <summary>
-		/// Method 4 tests
-		/// </summary>
-		/// 
-
+		#region Method 4 tests
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void SelectRadiobutton_DocumentHasNoFields_DocumentHasNoFieldsException()
@@ -348,11 +332,10 @@ namespace ElaborazionePdf.UnitTests
 				doc.SelectRadiobutton("language_gc", "Spanish");
 			}
 		}
+		#endregion
 
-		/// <summary>
-		/// Method 5 tests
-		/// </summary>
 
+		#region Method 5 tests
 		[TestMethod]
 		[ExpectedException(typeof(DocumentHasNoFieldsException))]
 		public void InsertTextInField_DocumentHasNoFields_DocumentHasNoFieldsException()
@@ -426,11 +409,9 @@ namespace ElaborazionePdf.UnitTests
 				doc.InsertTextInField("Nome", "Pippo2");
 			}
 		}
-		
-		/// <summary>
-		///  Method 6 tests
-		/// </summary>
+		#endregion
 
+		#region Method 6 tests
 		[TestMethod]
 		public void Save_DocumentUntouched()
 		{
@@ -474,5 +455,6 @@ namespace ElaborazionePdf.UnitTests
 				doc.Save();
 			}
 		}
+		#endregion
 	}
 }

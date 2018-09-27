@@ -213,9 +213,6 @@ namespace IDSign.PdfUtility
 		/// <returns>bool Operation result</returns>
 		public void FlagCheckbox(string fieldName)
 		{
-			bool found = false;                                                             //Flag indicating if an unchecked checkbox has been found
-			string name;                                                                    //Field name
-
 			//Checking if argument is null
 			if (fieldName == null)
 				throw new ArgumentNullException(fieldName);
@@ -227,29 +224,20 @@ namespace IDSign.PdfUtility
 			if (form.Fields.Count == 0)
 				throw new DocumentHasNoFieldsException(filename);
 
-			//Analyzing every item
-			foreach (KeyValuePair<string, AcroFields.Item> kvp in form.Fields)
-			{
-				//Looking checkbox with fieldname
-				if (form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX && (name = form.GetTranslatedFieldName(kvp.Key)).Equals(fieldName))
-				{
-					//Getting checkbox's state values (Note: they change according to PDF's language)
-					//Note: values[0] is the unchecked value, values[1] is checked value
-					string[] values = form.GetAppearanceStates(name);
+			//Looking for a checkbox with the given name
+			var result = form.Fields.Where(kvp => form.GetFieldType(kvp.Key) == AcroFields.FIELD_TYPE_CHECKBOX && form.GetTranslatedFieldName(kvp.Key).Equals(fieldName))?.FirstOrDefault();
 
-					//If the box isn't checked, we check it
-					if (form.GetField(kvp.Key).Equals(values[0]) || form.GetField(kvp.Key).Length == 0)
-					{
-						//Changing state and returning true (in case of error it returns false)
-						found = form.SetField(name, values[1]);
-						break;
-					}
-				}
-			}
-
-			if (!found)
-			{
+			if (result.Value.Key == null || result.Value.Value == null)
 				throw new FieldNotFoundException(fieldName, AcroFields.FIELD_TYPE_CHECKBOX);
+
+			string name = form.GetTranslatedFieldName(result.Value.Key);
+			string[] values = form.GetAppearanceStates(name);
+
+			//If the box isn't checked, we check it
+			if (form.GetField(result.Value.Key).Equals(values[0]) || form.GetField(result.Value.Key).Length == 0)
+			{
+				//Changing state and returning true (in case of error it returns false)
+				form.SetField(name, values[1]);
 			}
 		}
 
